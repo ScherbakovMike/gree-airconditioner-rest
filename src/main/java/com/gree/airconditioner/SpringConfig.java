@@ -9,21 +9,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SpringConfig {
 
-    @Bean
-    public GreeCommunicationService communicationService() {
-        return new GreeCommunicationService();
-    }
+  @Bean
+  public GreeCommunicationService communicationService() {
+    return new GreeCommunicationService();
+  }
 
-    @Bean
-    public GreeDeviceBinderService binderService() {
-        return new GreeDeviceBinderService(communicationService());
-    }
+  @Bean
+  public GreeDeviceBinderService binderService() {
+    return new GreeDeviceBinderService(communicationService());
+  }
 
-    @Bean
-    public GreeAirconditionerService airconditionerService() {
-        GreeAirconditionerService greeAirconditionerService = new GreeAirconditionerService(binderService(), communicationService());
-        greeAirconditionerService.discoverDevices();
-        return greeAirconditionerService;
-    }
-
+  @Bean
+  public GreeAirconditionerService airconditionerService() {
+    GreeAirconditionerService greeAirconditionerService =
+        new GreeAirconditionerService(binderService(), communicationService());
+    greeAirconditionerService.discoverDevices();
+    return greeAirconditionerService;
+  }
 }

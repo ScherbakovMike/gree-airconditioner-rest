@@ -3,153 +3,218 @@ package com.gree.airconditioner.dto.packs;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ScanResponsePack {
-    @JsonProperty("t")
-    private String t;
-    @JsonProperty("cid")
-    private String cid;
-    @JsonProperty("bc")
-    private String brandCompany;
-    @JsonProperty("brand")
-    private String brand;
-    @JsonProperty("catalog")
-    private String catalog;
-    @JsonProperty("mac")
-    private String mac;
-    @JsonProperty("mid")
-    private String mid;
-    @JsonProperty("model")
-    private String model;
-    @JsonProperty("name")
-    private String friendlyName;
-    @JsonProperty("series")
-    private String series;
-    @JsonProperty("vender")
-    private String vender;
-    @JsonProperty("ver")
-    private String ver;
-    @JsonProperty("lock")
-    private Integer lock;
 
-    public String getT() {
-        return t;
-    }
+  @JsonProperty("t")
+  private String t;
 
-    public void setT(String t) {
-        this.t = t;
-    }
+  @JsonProperty("cid")
+  private String cid;
 
-    public String getCid() {
-        return cid;
-    }
+  @JsonProperty("bc")
+  private String brandCompany;
 
-    public void setCid(String cid) {
-        this.cid = cid;
-    }
+  @JsonProperty("brand")
+  private String brand;
 
-    public String getBrandCompany() {
-        return brandCompany;
-    }
+  @JsonProperty("catalog")
+  private String catalog;
 
-    public void setBrandCompany(String brandCompany) {
-        this.brandCompany = brandCompany;
-    }
+  @JsonProperty("mac")
+  private String mac;
 
-    public String getBrand() {
-        return brand;
-    }
+  @JsonProperty("mid")
+  private String mid;
 
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
+  @JsonProperty("model")
+  private String model;
 
-    public String getCatalog() {
-        return catalog;
-    }
+  @JsonProperty("name")
+  private String friendlyName;
 
-    public void setCatalog(String catalog) {
-        this.catalog = catalog;
-    }
+  @JsonProperty("series")
+  private String series;
 
-    public String getMac() {
-        return mac;
-    }
+  @JsonProperty("vender")
+  private String vender;
 
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
+  @JsonProperty("ver")
+  private String ver;
 
-    public String getMid() {
-        return mid;
-    }
+  @JsonProperty("lock")
+  private Integer lock;
 
-    public void setMid(String mid) {
-        this.mid = mid;
-    }
+  @JsonProperty("hid")
+  private String hid;
 
-    public String getModel() {
-        return model;
-    }
+  @JsonProperty("ModelType")
+  private String modelType;
 
-    public void setModel(String model) {
-        this.model = model;
-    }
+  public String getT() {
+    return t;
+  }
 
-    public String getFriendlyName() {
-        return friendlyName;
-    }
+  public void setT(String t) {
+    this.t = t;
+  }
 
-    public void setFriendlyName(String friendlyName) {
-        this.friendlyName = friendlyName;
-    }
+  public String getCid() {
+    return cid;
+  }
 
-    public String getSeries() {
-        return series;
-    }
+  public void setCid(String cid) {
+    this.cid = cid;
+  }
 
-    public void setSeries(String series) {
-        this.series = series;
-    }
+  public String getBrandCompany() {
+    return brandCompany;
+  }
 
-    public String getVender() {
-        return vender;
-    }
+  public void setBrandCompany(String brandCompany) {
+    this.brandCompany = brandCompany;
+  }
 
-    public void setVender(String vender) {
-        this.vender = vender;
-    }
+  public String getBrand() {
+    return brand;
+  }
 
-    public String getVer() {
-        return ver;
-    }
+  public void setBrand(String brand) {
+    this.brand = brand;
+  }
 
-    public void setVer(String ver) {
-        this.ver = ver;
-    }
+  public String getCatalog() {
+    return catalog;
+  }
 
-    public Integer getLock() {
-        return lock;
-    }
+  public void setCatalog(String catalog) {
+    this.catalog = catalog;
+  }
 
-    public void setLock(Integer lock) {
-        this.lock = lock;
-    }
+  public String getMac() {
+    return mac;
+  }
 
-    @Override
-    public String toString() {
-        return "ScanResponsePack{" +
-                "t='" + t + '\'' +
-                ", cid='" + cid + '\'' +
-                ", brandCompany='" + brandCompany + '\'' +
-                ", brand='" + brand + '\'' +
-                ", catalog='" + catalog + '\'' +
-                ", mac='" + mac + '\'' +
-                ", mid='" + mid + '\'' +
-                ", model='" + model + '\'' +
-                ", friendlyName='" + friendlyName + '\'' +
-                ", series='" + series + '\'' +
-                ", vender='" + vender + '\'' +
-                ", ver='" + ver + '\'' +
-                ", lock=" + lock +
-                '}';
-    }
+  public void setMac(String mac) {
+    this.mac = mac;
+  }
+
+  public String getMid() {
+    return mid;
+  }
+
+  public void setMid(String mid) {
+    this.mid = mid;
+  }
+
+  public String getModel() {
+    return model;
+  }
+
+  public void setModel(String model) {
+    this.model = model;
+  }
+
+  public String getFriendlyName() {
+    return friendlyName;
+  }
+
+  public void setFriendlyName(String friendlyName) {
+    this.friendlyName = friendlyName;
+  }
+
+  public String getSeries() {
+    return series;
+  }
+
+  public void setSeries(String series) {
+    this.series = series;
+  }
+
+  public String getVender() {
+    return vender;
+  }
+
+  public void setVender(String vender) {
+    this.vender = vender;
+  }
+
+  public String getVer() {
+    return ver;
+  }
+
+  public void setVer(String ver) {
+    this.ver = ver;
+  }
+
+  public Integer getLock() {
+    return lock;
+  }
+
+  public void setLock(Integer lock) {
+    this.lock = lock;
+  }
+
+  public String getHid() {
+    return hid;
+  }
+
+  public void setHid(String hid) {
+    this.hid = hid;
+  }
+
+  public String getModelType() {
+    return modelType;
+  }
+
+  public void setModelType(String modelType) {
+    this.modelType = modelType;
+  }
+
+  @Override
+  public String toString() {
+    return "ScanResponsePack{"
+        + "t='"
+        + t
+        + '\''
+        + ", cid='"
+        + cid
+        + '\''
+        + ", brandCompany='"
+        + brandCompany
+        + '\''
+        + ", brand='"
+        + brand
+        + '\''
+        + ", catalog='"
+        + catalog
+        + '\''
+        + ", mac='"
+        + mac
+        + '\''
+        + ", mid='"
+        + mid
+        + '\''
+        + ", model='"
+        + model
+        + '\''
+        + ", friendlyName='"
+        + friendlyName
+        + '\''
+        + ", series='"
+        + series
+        + '\''
+        + ", vender='"
+        + vender
+        + '\''
+        + ", ver='"
+        + ver
+        + ", lock="
+        + lock
+        + '\''
+        + ", hid='"
+        + hid
+        + '\''
+        + ", modelType='"
+        + modelType
+        + '}';
+  }
 }

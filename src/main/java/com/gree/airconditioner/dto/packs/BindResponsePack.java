@@ -3,54 +3,65 @@ package com.gree.airconditioner.dto.packs;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BindResponsePack {
-    @JsonProperty("t")
-    private String t;
-    @JsonProperty("mac")
-    private String mac;
-    @JsonProperty("key")
-    private String key;
-    @JsonProperty("r")
-    private String r;
+  @JsonProperty("t")
+  private String t;
 
-    public String getT() {
-        return t;
-    }
+  @JsonProperty("mac")
+  private String mac;
 
-    public void setT(String t) {
-        this.t = t;
-    }
+  @JsonProperty("key")
+  private String key;
 
-    public String getMac() {
-        return mac;
-    }
+  @JsonProperty("r")
+  private String r;
 
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
+  public String getT() {
+    return t;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public void setT(String t) {
+    this.t = t;
+  }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+  public String getMac() {
+    return mac;
+  }
 
-    public String getR() {
-        return r;
-    }
+  public void setMac(String mac) {
+    this.mac = mac;
+  }
 
-    public void setR(String r) {
-        this.r = r;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    @Override
-    public String toString() {
-        return "BindResponsePack{" +
-                "t='" + t + '\'' +
-                ", mac='" + mac + '\'' +
-                ", key='" + key + '\'' +
-                ", r='" + r + '\'' +
-                '}';
-    }
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public String getR() {
+    return r;
+  }
+
+  public void setR(String r) {
+    this.r = r;
+  }
+
+  @Override
+  public String toString() {
+    return "BindResponsePack{"
+        + "t='"
+        + t
+        + '\''
+        + ", mac='"
+        + mac
+        + '\''
+        + ", key='"
+        + key
+        + '\''
+        + ", r='"
+        + r
+        + '\''
+        + '}';
+  }
 }

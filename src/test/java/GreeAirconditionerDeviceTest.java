@@ -7,30 +7,30 @@ import com.gree.airconditioner.dto.CommandBuilder;
 import com.gree.airconditioner.dto.status.GreeDeviceStatus;
 import com.gree.airconditioner.dto.status.Switch;
 import com.gree.airconditioner.services.GreeAirconditionerDeviceFinder;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.function.Function;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class GreeAirconditionerDeviceTest {
 
-    @Ignore
-    @Test
-    public void test() throws Exception {
-        List<GreeAirconditionerDevice> devices = GreeAirconditionerDeviceFinder.findDevices();
-        if (devices.size() > 0) {
-            GreeCommunicationService communicationService = new GreeCommunicationService();
-            GreeDeviceBinderService service = new GreeDeviceBinderService(communicationService);
-            GreeDeviceBinding binding = service.getBiding(devices.get(0));
+  @Disabled
+  @Test
+  public void test() throws Exception {
+    List<GreeAirconditionerDevice> devices = GreeAirconditionerDeviceFinder.findDevices();
+    if (devices.size() > 0) {
+      GreeCommunicationService communicationService = new GreeCommunicationService();
+      GreeDeviceBinderService service = new GreeDeviceBinderService(communicationService);
+      GreeDeviceBinding binding = service.getBiding(devices.get(0));
 
-            Thread.sleep(1000);
+      Thread.sleep(1000);
 
-            GreeDeviceStatus status = new GreeDeviceStatus();
-            status.setPower(Switch.ON);
+      GreeDeviceStatus status = new GreeDeviceStatus();
+      status.setPower(Switch.ON);
 
-            Command command = CommandBuilder.builder().buildControlCommand(status, binding);
-            String result = communicationService.sendCommand(devices.get(0), command, Function.identity());
-        }
+      Command command = CommandBuilder.builder().buildControlCommand(status, binding);
+      String result =
+          communicationService.sendCommand(devices.get(0), command, Function.identity());
     }
+  }
 }

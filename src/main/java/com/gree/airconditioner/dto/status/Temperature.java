@@ -3,21 +3,22 @@ package com.gree.airconditioner.dto.status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Temperature {
-    @JsonProperty("SetTem")
-    private Integer temperature;
-    @JsonProperty("TemUn")
-    private TemperatureUnit unit;
+  @JsonProperty("SetTem")
+  private Integer temperature;
 
-    public Temperature(int temperature, TemperatureUnit unit) {
-        this.temperature = temperature;
-        this.unit = unit;
-    }
+  @JsonProperty("TemUn")
+  private TemperatureUnit unit;
 
-    public int getTemperature() {
-        return temperature;
-    }
+  public Temperature(int temperature, TemperatureUnit unit) {
+    this.temperature = temperature;
+    this.unit = unit;
+  }
 
-    public TemperatureUnit getUnit() {
-        return unit;
-    }
+  public int getTemperature() {
+    return temperature;
+  }
+
+  public TemperatureUnit getUnit() {
+    return unit;
+  }
 }
