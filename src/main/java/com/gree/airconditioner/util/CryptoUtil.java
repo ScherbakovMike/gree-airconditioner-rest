@@ -21,7 +21,7 @@ public class CryptoUtil {
   }
 
   public static String decryptPack(byte[] keyarray, String message) {
-    String descrytpedMessage = null;
+    String decryptedMessage = null;
     try {
       Key key = new SecretKeySpec(keyarray, "AES");
       Base64.Decoder decoder = Base64.getDecoder();
@@ -31,11 +31,11 @@ public class CryptoUtil {
       aesCipher.init(Cipher.DECRYPT_MODE, key);
       byte[] bytePlainText = aesCipher.doFinal(imageByte);
 
-      descrytpedMessage = new String(bytePlainText);
+      decryptedMessage = new String(bytePlainText);
     } catch (Exception ex) {
       System.out.println(ex);
     }
-    return descrytpedMessage;
+    return decryptedMessage;
   }
 
   public static String encryptPack(String message) {
@@ -43,7 +43,7 @@ public class CryptoUtil {
   }
 
   public static String encryptPack(byte[] keyarray, String message) {
-    String encrytpedMessage = null;
+    String encryptedMessage = null;
     try {
       Key key = new SecretKeySpec(keyarray, "AES");
       Cipher aesCipher = Cipher.getInstance("AES");
@@ -51,10 +51,10 @@ public class CryptoUtil {
       byte[] bytePlainText = aesCipher.doFinal(message.getBytes());
 
       Base64.Encoder newencoder = Base64.getEncoder();
-      encrytpedMessage = new String(newencoder.encode(bytePlainText));
+      encryptedMessage = new String(newencoder.encode(bytePlainText));
     } catch (Exception ex) {
       System.out.println(ex);
     }
-    return encrytpedMessage;
+    return encryptedMessage;
   }
 }
