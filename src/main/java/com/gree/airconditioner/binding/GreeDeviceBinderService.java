@@ -29,29 +29,49 @@ public class GreeDeviceBinderService {
   }
 
   public GreeDeviceBinding getBiding(GreeAirconditionerDevice device) {
-    if (log.isDebugEnabled()) {
-      log.debug("Attempting to bind with {}", device.getConnectionInfo().getAddress());
-    }
+    log.info("Attempting to bind with device: {}, MAC: {}", 
+        device.getConnectionInfo().getAddress(), 
+        device.getDeviceInfo().getMacAddress());
+    
     GreeDeviceBinding greeDeviceBinding = bindings.get(device);
     if (greeDeviceBinding != null) {
       long bindingCreationTime = greeDeviceBinding.getCreationDate().getTime();
       long nowTime = GregorianCalendar.getInstance().getTime().getTime();
       if (nowTime - bindingCreationTime < TimeUnit.MINUTES.toMillis(2)) {
+        log.info("Using existing binding for device: {}", device.getConnectionInfo().getAddress());
         return greeDeviceBinding;
+      } else {
+        log.info("Existing binding expired for device: {}, creating new binding", device.getConnectionInfo().getAddress());
       }
     }
-    DeviceInfo deviceInfo = device.getDeviceInfo();
-    Command bindCommand = CommandBuilder.builder().buildBindCommand(deviceInfo);
-
-    GreeDeviceBinding binding = sendBindCommand(device, bindCommand);
+    
+    // Implement proper handshake: scan then bind in same session
+    GreeDeviceBinding binding = performHandshakeAndBind(device);
     bindings.put(device, binding);
 
     return binding;
   }
+  
+  private GreeDeviceBinding performHandshakeAndBind(GreeAirconditionerDevice device) {
+    log.info("Starting scan-bind handshake sequence for device: {}", device.getConnectionInfo().getAddress());
+    
+    Command scanCommand = Command.builder().buildScanCommand();
+    DeviceInfo deviceInfo = device.getDeviceInfo();
+    Command bindCommand = CommandBuilder.builder().buildBindCommand(deviceInfo);
+    
+    return communicationService.sendScanThenBind(device, scanCommand, bindCommand, scanResponse -> bindResponse -> {
+      BindResponsePack responsePack = getBindingResponse(bindResponse);
+      if (responsePack != null && responsePack.getT().equalsIgnoreCase(CommandType.BINDOK.getCode())) {
+        log.info("Bind successful for device: {}", device.getConnectionInfo().getAddress());
+        return new GreeDeviceBinding(device, responsePack.getKey());
+      } else {
+        throw new BindingUnsuccessfulException(device);
+      }
+    });
+  }
 
   private GreeDeviceBinding sendBindCommand(GreeAirconditionerDevice device, Command bindCommand) {
-    GreeDeviceBinding binding =
-        communicationService.sendCommand(
+    return communicationService.sendCommand(
             device,
             bindCommand,
             (responseString) -> {
@@ -66,8 +86,6 @@ public class GreeDeviceBinderService {
                 throw new BindingUnsuccessfulException(device);
               }
             });
-
-    return binding;
   }
 
   private BindResponsePack getBindingResponse(String bindingResponseString) {

@@ -14,6 +14,7 @@ import com.gree.airconditioner.dto.status.TemperatureUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,16 +22,13 @@ public class GreeAirconditionerService {
 
   private final GreeDeviceBinderService binderService;
   private final GreeCommunicationService communicationService;
+  @Getter
   private List<GreeAirconditionerDevice> devices;
 
   public GreeAirconditionerService(
       GreeDeviceBinderService binderService, GreeCommunicationService communicationService) {
     this.binderService = binderService;
     this.communicationService = communicationService;
-  }
-
-  public List<GreeAirconditionerDevice> getDevices() {
-    return devices;
   }
 
   public void discoverDevices() {
@@ -42,49 +40,49 @@ public class GreeAirconditionerService {
   }
 
   public boolean turnOn(GreeAirconditionerDevice device) {
-    log.info("Turning on the air conditioner");
+    log.info("Turning on the air conditioner for device: {}", device.getConnectionInfo().getAddress());
     GreeDeviceBinding binding = binderService.getBiding(device);
 
     GreeDeviceStatus status = new GreeDeviceStatus();
     status.setPower(Switch.ON);
 
     Command command = CommandBuilder.builder().buildControlCommand(status, binding);
-    String result = communicationService.sendCommand(devices.get(0), command, Function.identity());
+    String result = communicationService.sendCommand(device, command, Function.identity());
     return true;
   }
 
   public boolean turnOff(GreeAirconditionerDevice device) {
-    log.info("Turning off the air conditioner");
+    log.info("Turning off the air conditioner for device: {}", device.getConnectionInfo().getAddress());
     GreeDeviceBinding binding = binderService.getBiding(device);
 
     GreeDeviceStatus status = new GreeDeviceStatus();
     status.setPower(Switch.OFF);
 
     Command command = CommandBuilder.builder().buildControlCommand(status, binding);
-    String result = communicationService.sendCommand(devices.get(0), command, Function.identity());
+    String result = communicationService.sendCommand(device, command, Function.identity());
     return true;
   }
 
   public boolean setTemperature(GreeAirconditionerDevice device, Integer temperature) {
-    log.info("Setting the temperature to {}", temperature);
+    log.info("Setting the temperature to {} for device: {}", temperature, device.getConnectionInfo().getAddress());
     GreeDeviceBinding binding = binderService.getBiding(device);
 
     GreeDeviceStatus status = new GreeDeviceStatus();
     status.setTemperature(new Temperature(temperature, TemperatureUnit.CELSIUS));
 
     Command command = CommandBuilder.builder().buildControlCommand(status, binding);
-    String result = communicationService.sendCommand(devices.get(0), command, Function.identity());
+    String result = communicationService.sendCommand(device, command, Function.identity());
     return true;
   }
 
   public GreeDeviceStatus getStatus(GreeAirconditionerDevice device) {
-    log.info("Getting status of device");
+    log.info("Getting status of device: {}", device.getConnectionInfo().getAddress());
     GreeDeviceBinding binding = binderService.getBiding(device);
 
     Command command = CommandBuilder.builder().buildStatusCommand(binding);
     GreeDeviceStatus result =
         communicationService.sendCommand(
-            devices.get(0), command, (json) -> StatusResponsePack.build(json, binding).toObject());
+            device, command, (json) -> StatusResponsePack.build(json, binding).toObject());
     return result;
   }
 }

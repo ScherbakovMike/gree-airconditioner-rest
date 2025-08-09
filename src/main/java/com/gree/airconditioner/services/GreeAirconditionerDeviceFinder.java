@@ -84,8 +84,8 @@ public class GreeAirconditionerDeviceFinder {
     List<GreeAirconditionerDevice> devices = new ArrayList<>();
 
     byte[] receiveData = new byte[1024];
-    boolean timeoutRecieved = false;
-    while (!timeoutRecieved) {
+    boolean timeoutReceived = false;
+    while (!timeoutReceived) {
       // Receive a response
       DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
       try {
@@ -111,7 +111,7 @@ public class GreeAirconditionerDeviceFinder {
         devices.add(device);
 
       } catch (IOException e) {
-        timeoutRecieved = true;
+        timeoutReceived = true;
       }
     }
     if (log.isInfoEnabled()) {

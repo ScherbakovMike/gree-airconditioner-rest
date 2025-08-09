@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GreeAirconditionerDevice {
 
-  private DeviceInfo deviceInfo;
-  private ConnectionInfo connectionInfo;
+  private final DeviceInfo deviceInfo;
+  private final ConnectionInfo connectionInfo;
 
   public GreeAirconditionerDevice(DeviceInfo device, ConnectionInfo connection) {
     this.deviceInfo = device;
