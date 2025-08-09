@@ -24,10 +24,27 @@ java -jar target/airconditioner-remote-1.0-SNAPSHOT.jar
 
 We have swagger and here it is:
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8081/swagger-ui.html
 ```
 
 ## Run it on a different port
 
-The app is written using Spring Boot.  
-Just search for additional parameters for Spring Boot on google and you'll figure it out :)
+The app is written using Spring Boot. The default port is **8081** as configured in `application.yml`.
+
+To run on a different port, you can:
+
+1. **Modify application.yml:**
+   ```yaml
+   server:
+     port: 8080  # Change to your desired port
+   ```
+
+2. **Or use command line parameter:**
+   ```bash
+   java -jar target/airconditioner-remote-1.0-SNAPSHOT.jar --server.port=8080
+   ```
+
+3. **Or set environment variable:**
+   ```bash
+   SERVER_PORT=8080 java -jar target/airconditioner-remote-1.0-SNAPSHOT.jar
+   ```

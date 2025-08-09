@@ -4,7 +4,7 @@ package com.gree.airconditioner.gree;
  * Client configuration options
  */
 public class ClientOptions {
-    private String host = "192.168.1.255";
+    private String host;
     private int port = 7000;
     private int connectTimeout = 3000;
     private boolean autoConnect = true;
