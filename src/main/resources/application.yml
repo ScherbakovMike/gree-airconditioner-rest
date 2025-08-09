@@ -10,7 +10,3 @@ springdoc:
 logging:
   level:
     root: INFO
-
-gree:
-  airconditioner:
-    socket-timeout: 5000
