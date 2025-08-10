@@ -88,9 +88,7 @@ public class HvacDeviceService {
                 });
 
             client.onError(
-                (error) -> {
-                  log.error("Error from device {}: {}", deviceId, error.getMessage());
-                });
+                error -> log.error("Error from device {}: {}", deviceId, error.getMessage()));
 
             // Connect to the device
             client.connect().get();

@@ -82,8 +82,8 @@ public class PropertyTransformer {
 
   private Object valueFromVendor(String property, Object value) {
     // Special handling for currentTemperature
-    if (CURRENT_TEMPERATURE.equals(property) && value instanceof Number) {
-      int intValue = ((Number) value).intValue();
+    if (CURRENT_TEMPERATURE.equals(property) && value instanceof Number number) {
+      int intValue = number.intValue();
       if (intValue != 0) {
         return intValue - 40; // Temperature from AC should be transformed by subtracting 40
       }
@@ -94,8 +94,8 @@ public class PropertyTransformer {
     Map<String, Map<String, Integer>> vendorValues = PropertyValue.getVendorValues();
     Map<String, Integer> propertyValues = vendorValues.get(property);
 
-    if (propertyValues != null && value instanceof Number) {
-      int intValue = ((Number) value).intValue();
+    if (propertyValues != null && value instanceof Number number) {
+      int intValue = number.intValue();
       // Find the string key for this vendor value
       for (Map.Entry<String, Integer> entry : propertyValues.entrySet()) {
         if (entry.getValue().equals(intValue)) {

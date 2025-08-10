@@ -39,6 +39,12 @@ public class HvacClient {
   private static final String VALUE_ON = "on";
   private static final String VALUE_OFF = "off";
 
+  // Additional property constants for status request
+  private static final String PROPERTY_TEMPERATURE_UNIT = "temperatureUnit";
+  private static final String PROPERTY_AIR = "air";
+  private static final String PROPERTY_BLOW = "blow";
+  private static final String PROPERTY_SAFETY_HEATING = "safetyHeating";
+
   private String deviceId; // Device MAC-address
   private DatagramSocket socket;
   private final HvacClientOptions options;
@@ -523,23 +529,23 @@ public class HvacClient {
 
     List<String> propertyNames =
         Arrays.asList(
-            "power",
-            "mode",
-            "temperatureUnit",
-            "temperature",
-            "currentTemperature",
-            "fanSpeed",
-            "air",
-            "blow",
-            "health",
-            "sleep",
-            "lights",
-            "swingHor",
-            "swingVert",
-            "quiet",
-            "turbo",
-            "powerSave",
-            "safetyHeating");
+            PROPERTY_POWER,
+            PROPERTY_MODE,
+            PROPERTY_TEMPERATURE_UNIT,
+            PROPERTY_TEMPERATURE,
+            PROPERTY_CURRENT_TEMPERATURE,
+            PROPERTY_FAN_SPEED,
+            PROPERTY_AIR,
+            PROPERTY_BLOW,
+            PROPERTY_HEALTH,
+            PROPERTY_SLEEP,
+            PROPERTY_LIGHTS,
+            PROPERTY_SWING_HOR,
+            PROPERTY_SWING_VERT,
+            PROPERTY_QUIET,
+            PROPERTY_TURBO,
+            PROPERTY_POWER_SAVE,
+            PROPERTY_SAFETY_HEATING);
 
     JSONObject statusMessage = new JSONObject();
     statusMessage.put("cols", new JSONArray(transformer.arrayToVendor(propertyNames)));

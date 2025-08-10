@@ -7,7 +7,6 @@ import com.gree.airconditioner.dto.api.DeviceStatusDto;
 import com.gree.airconditioner.service.HvacDeviceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -87,7 +86,7 @@ public class GreeDeviceController {
         .connectToDevice(deviceId)
         .thenApply(
             success -> {
-              if (success) {
+              if (Boolean.TRUE.equals(success)) {
                 log.info("Successfully connected to device: {}", deviceId);
                 return ResponseEntity.ok(
                     ApiResponse.success("Connected to device successfully", "Connected"));
@@ -122,7 +121,7 @@ public class GreeDeviceController {
         .disconnectFromDevice(deviceId)
         .thenApply(
             success -> {
-              if (success) {
+              if (Boolean.TRUE.equals(success)) {
                 log.info("Successfully disconnected from device: {}", deviceId);
                 return ResponseEntity.ok(
                     ApiResponse.success("Disconnected from device successfully", "Disconnected"));
@@ -191,7 +190,7 @@ public class GreeDeviceController {
         .controlDevice(deviceId, controlDto)
         .thenApply(
             success -> {
-              if (success) {
+              if (Boolean.TRUE.equals(success)) {
                 log.info("Successfully controlled device: {}", deviceId);
                 return ResponseEntity.ok(
                     ApiResponse.success("Device controlled successfully", "Success"));
@@ -213,20 +212,18 @@ public class GreeDeviceController {
 
   @PostMapping("/{deviceId}/power")
   @Operation(summary = "Toggle power", description = "Turn device on or off")
-  @Parameters({
-    @Parameter(
-        name = "deviceId",
-        description = "Unique identifier of the GREE device",
-        required = true,
-        in = ParameterIn.PATH,
-        schema = @Schema(type = "string")),
-    @Parameter(
-        name = "on",
-        description = "Power state - true to turn on, false to turn off",
-        required = true,
-        in = ParameterIn.QUERY,
-        schema = @Schema(type = "boolean", example = "true"))
-  })
+  @Parameter(
+      name = "deviceId",
+      description = "Unique identifier of the GREE device",
+      required = true,
+      in = ParameterIn.PATH,
+      schema = @Schema(type = "string"))
+  @Parameter(
+      name = "on",
+      description = "Power state - true to turn on, false to turn off",
+      required = true,
+      in = ParameterIn.QUERY,
+      schema = @Schema(type = "boolean", example = "true"))
   public CompletableFuture<ResponseEntity<ApiResponse<String>>> togglePower(
       @PathVariable String deviceId, @RequestParam boolean on) {
     DeviceControlDto control = new DeviceControlDto();
@@ -236,20 +233,18 @@ public class GreeDeviceController {
 
   @PostMapping("/{deviceId}/temperature")
   @Operation(summary = "Set temperature", description = "Set target temperature for the device")
-  @Parameters({
-    @Parameter(
-        name = "deviceId",
-        description = "Unique identifier of the GREE device",
-        required = true,
-        in = ParameterIn.PATH,
-        schema = @Schema(type = "string")),
-    @Parameter(
-        name = "temperature",
-        description = "Target temperature in Celsius (16-30)",
-        required = true,
-        in = ParameterIn.QUERY,
-        schema = @Schema(type = "integer", example = "22", minimum = "16", maximum = "30"))
-  })
+  @Parameter(
+      name = "deviceId",
+      description = "Unique identifier of the GREE device",
+      required = true,
+      in = ParameterIn.PATH,
+      schema = @Schema(type = "string"))
+  @Parameter(
+      name = "temperature",
+      description = "Target temperature in Celsius (16-30)",
+      required = true,
+      in = ParameterIn.QUERY,
+      schema = @Schema(type = "integer", example = "22", minimum = "16", maximum = "30"))
   public CompletableFuture<ResponseEntity<ApiResponse<String>>> setTemperature(
       @PathVariable String deviceId, @RequestParam int temperature) {
     if (temperature < 16 || temperature > 30) {
@@ -269,24 +264,22 @@ public class GreeDeviceController {
   @Operation(
       summary = "Set mode",
       description = "Set operating mode (AUTO, COOL, HEAT, DRY, FAN_ONLY)")
-  @Parameters({
-    @Parameter(
-        name = "deviceId",
-        description = "Unique identifier of the GREE device",
-        required = true,
-        in = ParameterIn.PATH,
-        schema = @Schema(type = "string")),
-    @Parameter(
-        name = "mode",
-        description = "Operating mode",
-        required = true,
-        in = ParameterIn.QUERY,
-        schema =
-            @Schema(
-                type = "string",
-                example = "COOL",
-                allowableValues = {"AUTO", "COOL", "HEAT", "DRY", "FAN_ONLY"}))
-  })
+  @Parameter(
+      name = "deviceId",
+      description = "Unique identifier of the GREE device",
+      required = true,
+      in = ParameterIn.PATH,
+      schema = @Schema(type = "string"))
+  @Parameter(
+      name = "mode",
+      description = "Operating mode",
+      required = true,
+      in = ParameterIn.QUERY,
+      schema =
+          @Schema(
+              type = "string",
+              example = "COOL",
+              allowableValues = {"AUTO", "COOL", "HEAT", "DRY", "FAN_ONLY"}))
   public CompletableFuture<ResponseEntity<ApiResponse<String>>> setMode(
       @PathVariable String deviceId, @RequestParam String mode) {
     DeviceControlDto control = new DeviceControlDto();
@@ -296,24 +289,22 @@ public class GreeDeviceController {
 
   @PostMapping("/{deviceId}/fanspeed")
   @Operation(summary = "Set fan speed", description = "Set fan speed (AUTO, LOW, MEDIUM, HIGH)")
-  @Parameters({
-    @Parameter(
-        name = "deviceId",
-        description = "Unique identifier of the GREE device",
-        required = true,
-        in = ParameterIn.PATH,
-        schema = @Schema(type = "string")),
-    @Parameter(
-        name = "fanSpeed",
-        description = "Fan speed level",
-        required = true,
-        in = ParameterIn.QUERY,
-        schema =
-            @Schema(
-                type = "string",
-                example = "AUTO",
-                allowableValues = {"AUTO", "LOW", "MEDIUM", "HIGH"}))
-  })
+  @Parameter(
+      name = "deviceId",
+      description = "Unique identifier of the GREE device",
+      required = true,
+      in = ParameterIn.PATH,
+      schema = @Schema(type = "string"))
+  @Parameter(
+      name = "fanSpeed",
+      description = "Fan speed level",
+      required = true,
+      in = ParameterIn.QUERY,
+      schema =
+          @Schema(
+              type = "string",
+              example = "AUTO",
+              allowableValues = {"AUTO", "LOW", "MEDIUM", "HIGH"}))
   public CompletableFuture<ResponseEntity<ApiResponse<String>>> setFanSpeed(
       @PathVariable String deviceId, @RequestParam String fanSpeed) {
     DeviceControlDto control = new DeviceControlDto();
