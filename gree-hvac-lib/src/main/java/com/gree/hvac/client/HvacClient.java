@@ -20,6 +20,25 @@ import org.json.JSONObject;
 @Slf4j
 public class HvacClient {
 
+  // Property name constants
+  private static final String PROPERTY_POWER = "power";
+  private static final String PROPERTY_TEMPERATURE = "temperature";
+  private static final String PROPERTY_MODE = "mode";
+  private static final String PROPERTY_FAN_SPEED = "fanSpeed";
+  private static final String PROPERTY_SWING_HOR = "swingHor";
+  private static final String PROPERTY_SWING_VERT = "swingVert";
+  private static final String PROPERTY_LIGHTS = "lights";
+  private static final String PROPERTY_TURBO = "turbo";
+  private static final String PROPERTY_QUIET = "quiet";
+  private static final String PROPERTY_HEALTH = "health";
+  private static final String PROPERTY_POWER_SAVE = "powerSave";
+  private static final String PROPERTY_SLEEP = "sleep";
+  private static final String PROPERTY_CURRENT_TEMPERATURE = "currentTemperature";
+
+  // Value constants
+  private static final String VALUE_ON = "on";
+  private static final String VALUE_OFF = "off";
+
   private String deviceId; // Device MAC-address
   private DatagramSocket socket;
   private final HvacClientOptions options;
@@ -143,55 +162,7 @@ public class HvacClient {
     return CompletableFuture.runAsync(
         () -> {
           try {
-            Map<String, Object> properties = new HashMap<>();
-
-            if (control.getPower() != null) {
-              properties.put("power", control.getPower() ? "on" : "off");
-            }
-
-            if (control.getTemperature() != null) {
-              properties.put("temperature", control.getTemperature());
-            }
-
-            if (control.getMode() != null) {
-              properties.put("mode", control.getMode().toLowerCase());
-            }
-
-            if (control.getFanSpeed() != null) {
-              properties.put("fanSpeed", control.getFanSpeed().toLowerCase());
-            }
-
-            if (control.getSwingHorizontal() != null) {
-              properties.put("swingHor", control.getSwingHorizontal().toLowerCase());
-            }
-
-            if (control.getSwingVertical() != null) {
-              properties.put("swingVert", control.getSwingVertical().toLowerCase());
-            }
-
-            if (control.getLights() != null) {
-              properties.put("lights", control.getLights() ? "on" : "off");
-            }
-
-            if (control.getTurbo() != null) {
-              properties.put("turbo", control.getTurbo() ? "on" : "off");
-            }
-
-            if (control.getQuiet() != null) {
-              properties.put("quiet", control.getQuiet() ? "on" : "off");
-            }
-
-            if (control.getHealth() != null) {
-              properties.put("health", control.getHealth() ? "on" : "off");
-            }
-
-            if (control.getPowerSave() != null) {
-              properties.put("powerSave", control.getPowerSave() ? "on" : "off");
-            }
-
-            if (control.getSleep() != null) {
-              properties.put("sleep", control.getSleep() ? "on" : "off");
-            }
+            Map<String, Object> properties = buildControlProperties(control);
 
             if (properties.isEmpty()) {
               log.warn("No properties to update");
@@ -206,25 +177,67 @@ public class HvacClient {
         });
   }
 
+  /** Build properties map from DeviceControl object */
+  private Map<String, Object> buildControlProperties(DeviceControl control) {
+    Map<String, Object> properties = new HashMap<>();
+
+    addBooleanProperty(properties, PROPERTY_POWER, control.getPower());
+    addValueProperty(properties, PROPERTY_TEMPERATURE, control.getTemperature());
+    addLowerCaseStringProperty(properties, PROPERTY_MODE, control.getMode());
+    addLowerCaseStringProperty(properties, PROPERTY_FAN_SPEED, control.getFanSpeed());
+    addLowerCaseStringProperty(properties, PROPERTY_SWING_HOR, control.getSwingHorizontal());
+    addLowerCaseStringProperty(properties, PROPERTY_SWING_VERT, control.getSwingVertical());
+    addBooleanProperty(properties, PROPERTY_LIGHTS, control.getLights());
+    addBooleanProperty(properties, PROPERTY_TURBO, control.getTurbo());
+    addBooleanProperty(properties, PROPERTY_QUIET, control.getQuiet());
+    addBooleanProperty(properties, PROPERTY_HEALTH, control.getHealth());
+    addBooleanProperty(properties, PROPERTY_POWER_SAVE, control.getPowerSave());
+    addBooleanProperty(properties, PROPERTY_SLEEP, control.getSleep());
+
+    return properties;
+  }
+
+  /** Add boolean property as on/off value */
+  private void addBooleanProperty(Map<String, Object> properties, String key, Boolean value) {
+    if (value != null) {
+      properties.put(key, value ? VALUE_ON : VALUE_OFF);
+    }
+  }
+
+  /** Add string property with lowercase conversion */
+  private void addLowerCaseStringProperty(
+      Map<String, Object> properties, String key, String value) {
+    if (value != null) {
+      properties.put(key, value.toLowerCase());
+    }
+  }
+
+  /** Add property value as-is */
+  private void addValueProperty(Map<String, Object> properties, String key, Object value) {
+    if (value != null) {
+      properties.put(key, value);
+    }
+  }
+
   /** Get current device properties as DeviceStatus */
   public DeviceStatus getStatus() {
     Map<String, Object> currentProperties = getCurrentProperties();
 
     DeviceStatus status = new DeviceStatus();
     status.setDeviceId(deviceId);
-    status.setPower("on".equals(currentProperties.get("power")));
-    status.setTemperature((Integer) currentProperties.get("temperature"));
-    status.setCurrentTemperature((Integer) currentProperties.get("currentTemperature"));
-    status.setMode((String) currentProperties.get("mode"));
-    status.setFanSpeed((String) currentProperties.get("fanSpeed"));
-    status.setSwingHorizontal((String) currentProperties.get("swingHor"));
-    status.setSwingVertical((String) currentProperties.get("swingVert"));
-    status.setLights("on".equals(currentProperties.get("lights")));
-    status.setTurbo("on".equals(currentProperties.get("turbo")));
-    status.setQuiet("on".equals(currentProperties.get("quiet")));
-    status.setHealth("on".equals(currentProperties.get("health")));
-    status.setPowerSave("on".equals(currentProperties.get("powerSave")));
-    status.setSleep("on".equals(currentProperties.get("sleep")));
+    status.setPower(VALUE_ON.equals(currentProperties.get(PROPERTY_POWER)));
+    status.setTemperature((Integer) currentProperties.get(PROPERTY_TEMPERATURE));
+    status.setCurrentTemperature((Integer) currentProperties.get(PROPERTY_CURRENT_TEMPERATURE));
+    status.setMode((String) currentProperties.get(PROPERTY_MODE));
+    status.setFanSpeed((String) currentProperties.get(PROPERTY_FAN_SPEED));
+    status.setSwingHorizontal((String) currentProperties.get(PROPERTY_SWING_HOR));
+    status.setSwingVertical((String) currentProperties.get(PROPERTY_SWING_VERT));
+    status.setLights(VALUE_ON.equals(currentProperties.get(PROPERTY_LIGHTS)));
+    status.setTurbo(VALUE_ON.equals(currentProperties.get(PROPERTY_TURBO)));
+    status.setQuiet(VALUE_ON.equals(currentProperties.get(PROPERTY_QUIET)));
+    status.setHealth(VALUE_ON.equals(currentProperties.get(PROPERTY_HEALTH)));
+    status.setPowerSave(VALUE_ON.equals(currentProperties.get(PROPERTY_POWER_SAVE)));
+    status.setSleep(VALUE_ON.equals(currentProperties.get(PROPERTY_SLEEP)));
 
     return status;
   }

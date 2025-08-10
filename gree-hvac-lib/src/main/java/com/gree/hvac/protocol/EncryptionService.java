@@ -129,6 +129,13 @@ public class EncryptionService {
     public abstract EncryptedMessage encrypt(JSONObject output) throws Exception;
   }
 
+  /**
+   * ECB cipher implementation for GREE HVAC protocol compatibility. Note: AES/ECB mode is required
+   * by GREE device firmware and cannot be changed. The security risk is mitigated by: 1. Local
+   * network communication only (no internet exposure) 2. Fixed protocol implementation required by
+   * hardware 3. Limited data sensitivity (HVAC control commands)
+   */
+  @SuppressWarnings("java:S5542") // SonarQube: AES/ECB required for GREE protocol compatibility
   private static class EcbCipher extends AbstractCipher {
     public EcbCipher() {
       super("a3K8Bx%2r8Y7#xDh");
@@ -136,7 +143,8 @@ public class EncryptionService {
 
     @Override
     public DecryptedMessage decrypt(JSONObject input) throws Exception {
-      Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+      // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
+      Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
       cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
@@ -150,7 +158,8 @@ public class EncryptionService {
 
     @Override
     public EncryptedMessage encrypt(JSONObject output) throws Exception {
-      Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+      // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
+      Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
       cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 

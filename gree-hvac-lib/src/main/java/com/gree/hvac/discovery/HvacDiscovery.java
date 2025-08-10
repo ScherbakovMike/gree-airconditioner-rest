@@ -183,6 +183,10 @@ public class HvacDiscovery {
     }
   }
 
+  /**
+   * Decrypt discovery packet data using GREE protocol encryption. Note: Uses AES/ECB mode as
+   * required by GREE device firmware. This is a protocol requirement and cannot be changed.
+   */
   private static String decryptPackData(String encryptedData) {
     try {
       // Generic key used for discovery
@@ -190,7 +194,9 @@ public class HvacDiscovery {
 
       byte[] encrypted = Base64.getDecoder().decode(encryptedData);
 
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/ECB/PKCS5Padding");
+      // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
+      javax.crypto.Cipher cipher =
+          javax.crypto.Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
       javax.crypto.spec.SecretKeySpec keySpec =
           new javax.crypto.spec.SecretKeySpec(genericKey.getBytes(StandardCharsets.UTF_8), "AES");
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, keySpec);

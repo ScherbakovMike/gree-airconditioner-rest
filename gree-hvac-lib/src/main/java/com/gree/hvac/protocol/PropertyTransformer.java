@@ -10,12 +10,15 @@ public class PropertyTransformer {
   private static final Map<String, String> PROPERTY_VENDOR_CODES = new HashMap<>();
   private static final Map<String, String> REVERSED_PROPERTIES = new HashMap<>();
 
+  // Property name constant
+  private static final String CURRENT_TEMPERATURE = "currentTemperature";
+
   static {
     PROPERTY_VENDOR_CODES.put("power", "Pow");
     PROPERTY_VENDOR_CODES.put("mode", "Mod");
     PROPERTY_VENDOR_CODES.put("temperatureUnit", "TemUn");
     PROPERTY_VENDOR_CODES.put("temperature", "SetTem");
-    PROPERTY_VENDOR_CODES.put("currentTemperature", "TemSen");
+    PROPERTY_VENDOR_CODES.put(CURRENT_TEMPERATURE, "TemSen");
     PROPERTY_VENDOR_CODES.put("fanSpeed", "WdSpd");
     PROPERTY_VENDOR_CODES.put("air", "Air");
     PROPERTY_VENDOR_CODES.put("blow", "Blo");
@@ -79,7 +82,7 @@ public class PropertyTransformer {
 
   private Object valueFromVendor(String property, Object value) {
     // Special handling for currentTemperature
-    if ("currentTemperature".equals(property) && value instanceof Number) {
+    if (CURRENT_TEMPERATURE.equals(property) && value instanceof Number) {
       int intValue = ((Number) value).intValue();
       if (intValue != 0) {
         return intValue - 40; // Temperature from AC should be transformed by subtracting 40
@@ -106,7 +109,7 @@ public class PropertyTransformer {
 
   private Object valueToVendor(String property, Object value) {
     // Special handling for currentTemperature (read-only)
-    if ("currentTemperature".equals(property)) {
+    if (CURRENT_TEMPERATURE.equals(property)) {
       throw new IllegalArgumentException("Cannot set read-only property currentTemperature");
     }
 
