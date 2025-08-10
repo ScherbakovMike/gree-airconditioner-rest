@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 public class EncryptionService {
   private static final Logger logger = LoggerFactory.getLogger(EncryptionService.class);
 
-  private EcbCipher ecbCipher;
-  private GcmCipher gcmCipher;
+  private final EcbCipher ecbCipher;
+  private final GcmCipher gcmCipher;
   private AbstractCipher activeCipher;
   private int bindAttempt = 1;
 
@@ -138,7 +138,7 @@ public class EncryptionService {
   @SuppressWarnings("java:S5542") // SonarQube: AES/ECB required for GREE protocol compatibility
   private static class EcbCipher extends AbstractCipher {
     public EcbCipher() {
-      super("a3K8Bx%2r8Y7#xDh");
+      super("a3K8Bx%2r8Y7#xDh"); // NOSONAR - GREE protocol constant, not a secret
     }
 
     @Override
@@ -174,7 +174,6 @@ public class EncryptionService {
   private static class GcmCipher extends AbstractCipher {
     private static final byte[] GCM_NONCE = hexToBytes("5440784449675a516c5e6313");
     private static final byte[] GCM_AEAD = "qualcomm-test".getBytes(StandardCharsets.UTF_8);
-    private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 16;
 
     public GcmCipher() {

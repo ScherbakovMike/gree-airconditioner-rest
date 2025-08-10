@@ -3,6 +3,7 @@ package com.gree.airconditioner.service;
 import com.gree.airconditioner.dto.api.DeviceControlDto;
 import com.gree.airconditioner.dto.api.DeviceInfoDto;
 import com.gree.airconditioner.dto.api.DeviceStatusDto;
+import com.gree.airconditioner.exceptions.HvacDeviceException;
 import com.gree.hvac.GreeHvac;
 import com.gree.hvac.client.HvacClient;
 import com.gree.hvac.client.HvacClientOptions;
@@ -142,7 +143,7 @@ public class HvacDeviceService {
           try {
             HvacClient client = connectedClients.get(deviceId);
             if (client == null) {
-              throw new RuntimeException("Device " + deviceId + " is not connected");
+              throw new HvacDeviceException("Device " + deviceId + " is not connected");
             }
 
             DeviceStatus status = client.getStatus();
@@ -150,7 +151,7 @@ public class HvacDeviceService {
 
           } catch (Exception e) {
             log.error("Failed to get status for device {}: {}", deviceId, e.getMessage());
-            throw new RuntimeException("Failed to get device status: " + e.getMessage());
+            throw new HvacDeviceException("Failed to get device status: " + e.getMessage(), e);
           }
         });
   }
@@ -162,7 +163,7 @@ public class HvacDeviceService {
           try {
             HvacClient client = connectedClients.get(deviceId);
             if (client == null) {
-              throw new RuntimeException("Device " + deviceId + " is not connected");
+              throw new HvacDeviceException("Device " + deviceId + " is not connected");
             }
 
             log.info("Controlling device {}: {}", deviceId, controlDto);
@@ -175,7 +176,7 @@ public class HvacDeviceService {
 
           } catch (Exception e) {
             log.error("Failed to control device {}: {}", deviceId, e.getMessage());
-            throw new RuntimeException("Failed to control device: " + e.getMessage());
+            throw new HvacDeviceException("Failed to control device: " + e.getMessage(), e);
           }
         });
   }

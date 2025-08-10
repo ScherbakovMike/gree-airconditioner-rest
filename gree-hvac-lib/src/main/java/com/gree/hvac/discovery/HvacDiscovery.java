@@ -189,8 +189,9 @@ public class HvacDiscovery {
    */
   private static String decryptPackData(String encryptedData) {
     try {
-      // Generic key used for discovery
-      String genericKey = "a3K8Bx%2r8Y7#xDh";
+      // GREE protocol constant - not a compromised password but a published protocol specification
+      // This key is documented in GREE HVAC protocol and required by device firmware
+      String genericKey = "a3K8Bx%2r8Y7#xDh"; // NOSONAR - GREE protocol constant, not a secret
 
       byte[] encrypted = Base64.getDecoder().decode(encryptedData);
 
