@@ -55,14 +55,6 @@ jobs:
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
-    - name: Upload Coverage Reports to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        file: target/site/jacoco/jacoco.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
     - name: Create Release Draft
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: actions/github-script@v7
