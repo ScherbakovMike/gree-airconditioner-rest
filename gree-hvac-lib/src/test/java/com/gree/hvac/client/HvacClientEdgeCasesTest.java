@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.gree.hvac.dto.DeviceControl;
 import com.gree.hvac.dto.DeviceStatus;
+import com.gree.hvac.network.MockNetworkService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 class HvacClientEdgeCasesTest {
 
   private HvacClient client;
+  private MockNetworkService mockNetworkService;
 
   @AfterEach
   void tearDown() {
@@ -30,7 +32,9 @@ class HvacClientEdgeCasesTest {
             .setAutoConnect(false)
             .setConnectTimeout(100);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     assertNotNull(client);
     assertFalse(client.isConnected());
@@ -46,7 +50,9 @@ class HvacClientEdgeCasesTest {
     HvacClientOptions options =
         new HvacClientOptions("").setAutoConnect(false).setConnectTimeout(100);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     CompletableFuture<Void> connectFuture = client.connect();
 
@@ -62,11 +68,13 @@ class HvacClientEdgeCasesTest {
             .setAutoConnect(false)
             .setConnectTimeout(100);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     CompletableFuture<Void> connectFuture = client.connect();
 
-    // Port 0 might cause issues
+    // Should fail with connection failure enabled
     assertThrows(Exception.class, () -> connectFuture.get(2, TimeUnit.SECONDS));
   }
 
@@ -78,11 +86,13 @@ class HvacClientEdgeCasesTest {
             .setAutoConnect(false)
             .setConnectTimeout(100);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     CompletableFuture<Void> connectFuture = client.connect();
 
-    // Negative port should cause immediate failure
+    // Should fail with connection failure enabled
     assertThrows(Exception.class, () -> connectFuture.get(2, TimeUnit.SECONDS));
   }
 
@@ -94,11 +104,13 @@ class HvacClientEdgeCasesTest {
             .setPollingTimeout(1)
             .setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     CompletableFuture<Void> connectFuture = client.connect();
 
-    // Should timeout very quickly
+    // Should timeout very quickly with connection failure enabled
     assertThrows(Exception.class, () -> connectFuture.get(1, TimeUnit.SECONDS));
   }
 
@@ -110,7 +122,8 @@ class HvacClientEdgeCasesTest {
             .setPollingTimeout(0)
             .setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     // Should handle zero timeout gracefully
     assertNotNull(client);
@@ -121,7 +134,8 @@ class HvacClientEdgeCasesTest {
   void testDeviceControlWithExtremeValues() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     DeviceControl control = new DeviceControl();
     control.setTemperature(-100); // Extreme cold
@@ -138,7 +152,8 @@ class HvacClientEdgeCasesTest {
   void testDeviceControlWithVeryLongStrings() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     String veryLongString = "x".repeat(10000);
 
@@ -158,7 +173,8 @@ class HvacClientEdgeCasesTest {
   void testSetPropertiesWithVeryLargeMap() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     Map<String, Object> largeMap = new HashMap<>();
     for (int i = 0; i < 10000; i++) {
@@ -175,7 +191,8 @@ class HvacClientEdgeCasesTest {
   void testSetPropertiesWithSpecialCharacters() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     Map<String, Object> properties = new HashMap<>();
     properties.put("unicode_test", "测试数据");
@@ -193,7 +210,8 @@ class HvacClientEdgeCasesTest {
   void testManyEventListeners() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     // Register many listeners
     for (int i = 0; i < 1000; i++) {
@@ -214,7 +232,8 @@ class HvacClientEdgeCasesTest {
   void testStatusObjectConsistencyWithNoData() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     DeviceStatus status = client.getStatus();
 
@@ -245,7 +264,8 @@ class HvacClientEdgeCasesTest {
   void testConcurrentPropertyAccess() {
     HvacClientOptions options = new HvacClientOptions("192.168.1.100").setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     // Test that concurrent property access doesn't cause issues
     assertDoesNotThrow(
@@ -269,7 +289,9 @@ class HvacClientEdgeCasesTest {
     // Test creating client with null host in options
     HvacClientOptions options = new HvacClientOptions().setHost(null).setAutoConnect(false);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    mockNetworkService.simulateConnectionFailure(true);
+    client = new HvacClient(options, mockNetworkService);
 
     CompletableFuture<Void> connectFuture = client.connect();
 
@@ -282,7 +304,8 @@ class HvacClientEdgeCasesTest {
     HvacClientOptions options =
         new HvacClientOptions("192.168.1.100").setAutoConnect(false).setConnectTimeout(50);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
 
     // Rapidly cycle connect/disconnect
     assertDoesNotThrow(

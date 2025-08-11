@@ -3,10 +3,11 @@ package com.gree.hvac.client;
 import com.gree.hvac.dto.DeviceControl;
 import com.gree.hvac.dto.DeviceStatus;
 import com.gree.hvac.exceptions.HvacException;
+import com.gree.hvac.network.NetworkService;
+import com.gree.hvac.network.NetworkServiceImpl;
+import com.gree.hvac.network.NetworkSocket;
 import com.gree.hvac.protocol.EncryptionService;
 import com.gree.hvac.protocol.PropertyTransformer;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -46,8 +47,9 @@ public class HvacClient {
   private static final String PROPERTY_SAFETY_HEATING = "safetyHeating";
 
   private String deviceId; // Device MAC-address
-  private DatagramSocket socket;
+  private NetworkSocket socket;
   private final HvacClientOptions options;
+  private final NetworkService networkService;
   private final Map<String, Object> properties = new ConcurrentHashMap<>();
   private final PropertyTransformer transformer = new PropertyTransformer();
   private EncryptionService encryptionService;
@@ -70,8 +72,22 @@ public class HvacClient {
 
   /** Create HVAC client with configuration options */
   public HvacClient(HvacClientOptions options) {
+    this(options, new NetworkServiceImpl());
+  }
+
+  /** Create HVAC client with configuration options and network service (for testing) */
+  public HvacClient(HvacClientOptions options, NetworkService networkService) {
+    this(options, networkService, new EncryptionService());
+  }
+
+  /** Create HVAC client with all dependencies for testing */
+  public HvacClient(
+      HvacClientOptions options,
+      NetworkService networkService,
+      EncryptionService encryptionService) {
     this.options = options != null ? options : new HvacClientOptions();
-    this.encryptionService = new EncryptionService();
+    this.networkService = networkService;
+    this.encryptionService = encryptionService;
 
     log.info("Initialized HVAC client for host: {}", this.options.getHost());
 
@@ -89,7 +105,7 @@ public class HvacClient {
 
   /** Create HVAC client with host address */
   public HvacClient(String host) {
-    this(new HvacClientOptions(host));
+    this(new HvacClientOptions(host), new NetworkServiceImpl());
   }
 
   /** Connect to HVAC device */
@@ -105,8 +121,7 @@ public class HvacClient {
     connectFuture = new CompletableFuture<>();
 
     try {
-      socket = new DatagramSocket();
-      socket.setBroadcast(true);
+      socket = networkService.createSocket(0);
 
       // Start listening for responses
       startListening();
@@ -128,8 +143,8 @@ public class HvacClient {
     return CompletableFuture.runAsync(
         () -> {
           dispose();
-          if (socket != null && !socket.isClosed()) {
-            socket.close();
+          if (socket != null && !networkService.isClosed(socket)) {
+            networkService.closeSocket(socket);
             socket = null;
           }
           connected = false;
@@ -352,38 +367,19 @@ public class HvacClient {
   }
 
   private void startListening() {
-    CompletableFuture.runAsync(
-        () -> {
-          byte[] buffer = new byte[1024];
-          DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-          while (!socket.isClosed()) {
-            try {
-              socket.receive(packet);
-              byte[] data = Arrays.copyOf(packet.getData(), packet.getLength());
-              handleResponse(data);
-            } catch (Exception e) {
-              if (!socket.isClosed()) {
-                log.error("Error receiving response", e);
-                notifyError(e);
-              }
-            }
-          }
-        });
+    networkService.startListening(socket, this::handleResponse);
   }
 
   private void socketSend(JSONObject message) throws Exception {
-    if (socket == null || socket.isClosed()) {
+    if (socket == null || networkService.isClosed(socket)) {
       throw new HvacException("Client is not connected to the HVAC device");
     }
 
     log.debug("Sending message: {}", message);
     byte[] data = message.toString().getBytes(StandardCharsets.UTF_8);
 
-    InetAddress address = InetAddress.getByName(options.getHost());
-    DatagramPacket packet = new DatagramPacket(data, data.length, address, options.getPort());
-
-    socket.send(packet);
+    InetAddress address = networkService.resolveAddress(options.getHost());
+    networkService.sendData(socket, data, address, options.getPort());
   }
 
   private void sendRequest(JSONObject message) throws Exception {

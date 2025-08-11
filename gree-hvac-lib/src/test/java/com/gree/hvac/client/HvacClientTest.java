@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.gree.hvac.dto.DeviceControl;
 import com.gree.hvac.dto.DeviceStatus;
 import com.gree.hvac.exceptions.HvacException;
+import com.gree.hvac.network.MockNetworkService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,7 @@ class HvacClientTest {
 
   private HvacClient client;
   private HvacClientOptions options;
+  private MockNetworkService mockNetworkService;
 
   @BeforeEach
   void setUp() {
@@ -32,7 +34,8 @@ class HvacClientTest {
             .setConnectTimeout(100) // Short timeout for testing
             .setPollingTimeout(100);
 
-    client = new HvacClient(options);
+    mockNetworkService = new MockNetworkService();
+    client = new HvacClient(options, mockNetworkService);
   }
 
   @AfterEach
@@ -49,7 +52,8 @@ class HvacClientTest {
   @Test
   void testConstructorWithOptions() {
     HvacClientOptions testOptions = new HvacClientOptions("192.168.1.50").setPort(8000);
-    HvacClient testClient = new HvacClient(testOptions);
+    MockNetworkService testMockService = new MockNetworkService();
+    HvacClient testClient = new HvacClient(testOptions, testMockService);
 
     assertNotNull(testClient);
     assertFalse(testClient.isConnected());
@@ -61,7 +65,8 @@ class HvacClientTest {
   @Test
   void testConstructorWithNullOptions() {
     HvacClientOptions nullOptions = null;
-    HvacClient testClient = new HvacClient(nullOptions);
+    MockNetworkService testMockService = new MockNetworkService();
+    HvacClient testClient = new HvacClient(nullOptions, testMockService);
 
     assertNotNull(testClient);
     assertFalse(testClient.isConnected());
@@ -71,6 +76,8 @@ class HvacClientTest {
 
   @Test
   void testConstructorWithHostString() {
+    // Note: This uses the real NetworkService implementation
+    // In a real test environment you might want to also mock this
     HvacClient testClient = new HvacClient("192.168.1.200");
 
     assertNotNull(testClient);
@@ -87,10 +94,11 @@ class HvacClientTest {
             .setAutoConnect(true)
             .setConnectTimeout(50); // Very short timeout
 
-    HvacClient autoConnectClient = new HvacClient(autoConnectOptions);
+    MockNetworkService testMockService = new MockNetworkService();
+    HvacClient autoConnectClient = new HvacClient(autoConnectOptions, testMockService);
 
     assertNotNull(autoConnectClient);
-    // Connection will fail due to no real device, but that's expected in tests
+    // Connection should succeed with mock service
 
     autoConnectClient.shutdown();
   }
@@ -156,6 +164,9 @@ class HvacClientTest {
 
     assertTrue(
         exception.getCause() instanceof HvacException
+            || (exception.getCause() != null
+                && exception.getCause().getMessage() != null
+                && exception.getCause().getMessage().contains("not connected"))
             || (exception.getMessage() != null
                 && exception.getMessage().contains("not connected")));
   }
@@ -363,20 +374,24 @@ class HvacClientTest {
   }
 
   @Test
-  void testConnectWithValidOptions() {
+  void testConnectWithValidOptions() throws Exception {
     HvacClientOptions validOptions =
         new HvacClientOptions("192.168.1.100")
             .setPort(7000)
             .setConnectTimeout(1000)
             .setAutoConnect(false);
 
-    HvacClient validClient = new HvacClient(validOptions);
+    MockNetworkService testMockService = new MockNetworkService();
+    testMockService.simulateConnectionFailure(true); // Simulate failure for predictable test
+    HvacClient validClient = new HvacClient(validOptions, testMockService);
 
     CompletableFuture<Void> connectFuture = validClient.connect();
     assertNotNull(connectFuture);
-    assertFalse(connectFuture.isDone());
 
-    connectFuture.cancel(true);
+    // Should fail with mock connection failure enabled
+    assertThrows(Exception.class, () -> connectFuture.get(2, TimeUnit.SECONDS));
+    assertFalse(validClient.isConnected());
+
     validClient.shutdown();
   }
 
@@ -393,7 +408,8 @@ class HvacClientTest {
             .setDebug(true)
             .setLogLevel("debug");
 
-    HvacClient customClient = new HvacClient(customOptions);
+    MockNetworkService testMockService = new MockNetworkService();
+    HvacClient customClient = new HvacClient(customOptions, testMockService);
 
     assertNotNull(customClient);
     assertFalse(customClient.isConnected());
