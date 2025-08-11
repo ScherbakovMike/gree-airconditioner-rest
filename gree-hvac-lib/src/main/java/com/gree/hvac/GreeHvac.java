@@ -27,7 +27,8 @@ public final class GreeHvac {
    * @return CompletableFuture containing list of discovered devices
    */
   public static CompletableFuture<List<DeviceInfo>> discoverDevices() {
-    return HvacDiscovery.discoverDevices();
+    HvacDiscovery discovery = new HvacDiscovery();
+    return discovery.discoverDevices();
   }
 
   /**
@@ -37,7 +38,8 @@ public final class GreeHvac {
    * @return CompletableFuture containing list of discovered devices
    */
   public static CompletableFuture<List<DeviceInfo>> discoverDevices(String broadcastAddress) {
-    return HvacDiscovery.discoverDevices(broadcastAddress);
+    HvacDiscovery discovery = new HvacDiscovery();
+    return discovery.discoverDevices(broadcastAddress);
   }
 
   /**

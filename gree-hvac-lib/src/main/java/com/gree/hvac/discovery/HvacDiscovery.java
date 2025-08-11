@@ -16,8 +16,32 @@ public class HvacDiscovery {
   private static final int DISCOVERY_TIMEOUT = 3000;
   private static final String DISCOVERY_COMMAND = "{\"t\":\"scan\"}";
 
+  private final NetworkService networkService;
+  private final SocketService socketService;
+  private final TimeService timeService;
+  private final CryptoService cryptoService;
+
+  public HvacDiscovery() {
+    this(
+        new DefaultNetworkService(),
+        new DefaultSocketService(),
+        new DefaultTimeService(),
+        new DefaultCryptoService());
+  }
+
+  public HvacDiscovery(
+      NetworkService networkService,
+      SocketService socketService,
+      TimeService timeService,
+      CryptoService cryptoService) {
+    this.networkService = networkService;
+    this.socketService = socketService;
+    this.timeService = timeService;
+    this.cryptoService = cryptoService;
+  }
+
   /** Discover GREE HVAC devices on all network interfaces */
-  public static CompletableFuture<List<DeviceInfo>> discoverDevices() {
+  public CompletableFuture<List<DeviceInfo>> discoverDevices() {
     return CompletableFuture.supplyAsync(
         () -> {
           log.info("Starting HVAC device discovery");
@@ -35,14 +59,14 @@ public class HvacDiscovery {
   }
 
   /** Discover GREE HVAC devices on a specific broadcast address */
-  public static CompletableFuture<List<DeviceInfo>> discoverDevices(String broadcastAddress) {
+  public CompletableFuture<List<DeviceInfo>> discoverDevices(String broadcastAddress) {
     return CompletableFuture.supplyAsync(
         () -> {
           log.info("Starting HVAC device discovery on {}", broadcastAddress);
           List<DeviceInfo> devices = new ArrayList<>();
 
           try {
-            InetAddress broadcast = InetAddress.getByName(broadcastAddress);
+            InetAddress broadcast = networkService.getByName(broadcastAddress);
             devices.addAll(findDevicesOnBroadcastAddress(broadcast));
           } catch (Exception e) {
             log.error("Error during device discovery on {}", broadcastAddress, e);
@@ -56,11 +80,11 @@ public class HvacDiscovery {
         });
   }
 
-  private static List<DeviceInfo> findDevicesOnAllNetworkInterfaces() {
+  private List<DeviceInfo> findDevicesOnAllNetworkInterfaces() {
     List<DeviceInfo> allDevices = new ArrayList<>();
 
     try {
-      Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+      Enumeration<NetworkInterface> interfaces = networkService.getNetworkInterfaces();
       while (interfaces.hasMoreElements()) {
         NetworkInterface networkInterface = interfaces.nextElement();
 
@@ -84,28 +108,25 @@ public class HvacDiscovery {
     return allDevices;
   }
 
-  private static List<DeviceInfo> findDevicesOnBroadcastAddress(InetAddress broadcastAddress) {
+  private List<DeviceInfo> findDevicesOnBroadcastAddress(InetAddress broadcastAddress) {
     List<DeviceInfo> devices = new ArrayList<>();
 
-    try (DatagramSocket socket = new DatagramSocket()) {
+    try (DatagramSocket socket = socketService.createSocket()) {
       socket.setBroadcast(true);
       socket.setSoTimeout(DISCOVERY_TIMEOUT);
 
       // Send scan command
       byte[] scanData = DISCOVERY_COMMAND.getBytes(StandardCharsets.UTF_8);
-      DatagramPacket sendPacket =
-          new DatagramPacket(scanData, scanData.length, broadcastAddress, DISCOVERY_PORT);
 
       log.debug("Sending scan command to: {}", broadcastAddress.getHostAddress());
-      socket.send(sendPacket);
+      socketService.sendPacket(socket, scanData, broadcastAddress, DISCOVERY_PORT);
 
-      long endTime = System.currentTimeMillis() + DISCOVERY_TIMEOUT;
+      long endTime = timeService.getCurrentTimeMillis() + DISCOVERY_TIMEOUT;
       byte[] receiveData = new byte[1024];
 
-      while (System.currentTimeMillis() < endTime) {
+      while (timeService.getCurrentTimeMillis() < endTime) {
         try {
-          DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-          socket.receive(receivePacket);
+          DatagramPacket receivePacket = socketService.receivePacket(socket, receiveData);
 
           String response =
               new String(
@@ -138,7 +159,7 @@ public class HvacDiscovery {
     return devices;
   }
 
-  private static DeviceInfo parseDeviceResponse(String response, InetAddress sourceAddress) {
+  private DeviceInfo parseDeviceResponse(String response, InetAddress sourceAddress) {
     try {
       // Parse JSON response
       JSONObject json = new JSONObject(response);
@@ -153,7 +174,7 @@ public class HvacDiscovery {
       }
 
       // Decrypt the pack using the generic key
-      String decryptedData = decryptPackData(encryptedPack);
+      String decryptedData = cryptoService.decryptPackData(encryptedPack);
       if (decryptedData == null) {
         return null;
       }
@@ -179,34 +200,6 @@ public class HvacDiscovery {
 
     } catch (Exception e) {
       log.debug("Error parsing device response: {}", e.getMessage());
-      return null;
-    }
-  }
-
-  /**
-   * Decrypt discovery packet data using GREE protocol encryption. Note: Uses AES/ECB mode as
-   * required by GREE device firmware. This is a protocol requirement and cannot be changed.
-   */
-  private static String decryptPackData(String encryptedData) {
-    try {
-      // GREE protocol constant - not a compromised password but a published protocol specification
-      // This key is documented in GREE HVAC protocol and required by device firmware
-      String genericKey = "a3K8Bx%2r8Y7#xDh"; // NOSONAR - GREE protocol constant, not a secret
-
-      byte[] encrypted = Base64.getDecoder().decode(encryptedData);
-
-      // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
-      javax.crypto.Cipher cipher =
-          javax.crypto.Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
-      javax.crypto.spec.SecretKeySpec keySpec =
-          new javax.crypto.spec.SecretKeySpec(genericKey.getBytes(StandardCharsets.UTF_8), "AES");
-      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, keySpec);
-
-      byte[] decrypted = cipher.doFinal(encrypted);
-      return new String(decrypted, StandardCharsets.UTF_8);
-
-    } catch (Exception e) {
-      log.debug("Error decrypting pack data: {}", e.getMessage());
       return null;
     }
   }
