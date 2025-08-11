@@ -231,19 +231,36 @@ public class HvacClient {
 
     DeviceStatus status = new DeviceStatus();
     status.setDeviceId(deviceId);
-    status.setPower(VALUE_ON.equals(currentProperties.get(PROPERTY_POWER)));
+
+    // Handle boolean properties - only set if the property exists
+    Object powerValue = currentProperties.get(PROPERTY_POWER);
+    status.setPower(powerValue != null ? VALUE_ON.equals(powerValue) : null);
+
     status.setTemperature((Integer) currentProperties.get(PROPERTY_TEMPERATURE));
     status.setCurrentTemperature((Integer) currentProperties.get(PROPERTY_CURRENT_TEMPERATURE));
     status.setMode((String) currentProperties.get(PROPERTY_MODE));
     status.setFanSpeed((String) currentProperties.get(PROPERTY_FAN_SPEED));
     status.setSwingHorizontal((String) currentProperties.get(PROPERTY_SWING_HOR));
     status.setSwingVertical((String) currentProperties.get(PROPERTY_SWING_VERT));
-    status.setLights(VALUE_ON.equals(currentProperties.get(PROPERTY_LIGHTS)));
-    status.setTurbo(VALUE_ON.equals(currentProperties.get(PROPERTY_TURBO)));
-    status.setQuiet(VALUE_ON.equals(currentProperties.get(PROPERTY_QUIET)));
-    status.setHealth(VALUE_ON.equals(currentProperties.get(PROPERTY_HEALTH)));
-    status.setPowerSave(VALUE_ON.equals(currentProperties.get(PROPERTY_POWER_SAVE)));
-    status.setSleep(VALUE_ON.equals(currentProperties.get(PROPERTY_SLEEP)));
+
+    // Handle other boolean properties
+    Object lightsValue = currentProperties.get(PROPERTY_LIGHTS);
+    status.setLights(lightsValue != null ? VALUE_ON.equals(lightsValue) : null);
+
+    Object turboValue = currentProperties.get(PROPERTY_TURBO);
+    status.setTurbo(turboValue != null ? VALUE_ON.equals(turboValue) : null);
+
+    Object quietValue = currentProperties.get(PROPERTY_QUIET);
+    status.setQuiet(quietValue != null ? VALUE_ON.equals(quietValue) : null);
+
+    Object healthValue = currentProperties.get(PROPERTY_HEALTH);
+    status.setHealth(healthValue != null ? VALUE_ON.equals(healthValue) : null);
+
+    Object powerSaveValue = currentProperties.get(PROPERTY_POWER_SAVE);
+    status.setPowerSave(powerSaveValue != null ? VALUE_ON.equals(powerSaveValue) : null);
+
+    Object sleepValue = currentProperties.get(PROPERTY_SLEEP);
+    status.setSleep(sleepValue != null ? VALUE_ON.equals(sleepValue) : null);
 
     return status;
   }

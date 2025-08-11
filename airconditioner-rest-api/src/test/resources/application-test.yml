@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: gree-airconditioner-rest-api-test
+
+# Test configuration
+logging:
+  level:
+    com.gree.airconditioner: DEBUG
+    com.gree.hvac: DEBUG
+    org.springframework.web: DEBUG
+    root: INFO
+
+# Test server configuration
+server:
+  port: 0  # Use random available port for tests
+
+# Test HVAC client configuration
+gree:
+  hvac:
+    client:
+      connect-timeout: 1000  # Short timeout for tests
+      read-timeout: 1000
+      retry-attempts: 1  # Minimal retries for tests
+      auto-connect: false  # Disable auto-connect for tests

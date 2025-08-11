@@ -1,5 +1,6 @@
 package com.gree.hvac.protocol;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,6 +131,20 @@ public class PropertyValue {
     temperatureUnit.put(TemperatureUnit.FAHRENHEIT, 1);
     VENDOR_VALUES.put("temperatureUnit", temperatureUnit);
 
+    // Temperature values (16-30 Celsius, mapped to 0-14)
+    Map<String, Integer> temperature = new HashMap<>();
+    for (int i = 16; i <= 30; i++) {
+      temperature.put(String.valueOf(i), i - 16);
+    }
+    VENDOR_VALUES.put("temperature", temperature);
+
+    // Current temperature values (0-50 Celsius, mapped to 0-50)
+    Map<String, Integer> currentTemperature = new HashMap<>();
+    for (int i = 0; i <= 50; i++) {
+      currentTemperature.put(String.valueOf(i), i);
+    }
+    VENDOR_VALUES.put("currentTemperature", currentTemperature);
+
     Map<String, Integer> fanSpeed = new HashMap<>();
     fanSpeed.put(FanSpeed.AUTO, 0);
     fanSpeed.put(FanSpeed.LOW, 1);
@@ -216,6 +231,11 @@ public class PropertyValue {
   }
 
   public static Map<String, Map<String, Integer>> getVendorValues() {
-    return VENDOR_VALUES;
+    // Return immutable maps to prevent modification
+    Map<String, Map<String, Integer>> immutableVendorValues = new HashMap<>();
+    for (Map.Entry<String, Map<String, Integer>> entry : VENDOR_VALUES.entrySet()) {
+      immutableVendorValues.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
+    }
+    return Collections.unmodifiableMap(immutableVendorValues);
   }
 }

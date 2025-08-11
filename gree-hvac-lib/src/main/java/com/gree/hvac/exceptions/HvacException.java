@@ -35,21 +35,27 @@ public class HvacException extends Exception {
 /** Exception thrown when socket communication fails */
 class HvacSocketException extends HvacException {
   public HvacSocketException(Throwable cause) {
-    super(cause.getMessage(), cause);
+    super(cause != null ? cause.getMessage() : null, cause);
   }
 }
 
 /** Exception thrown when JSON message parsing fails */
 class HvacMessageParseException extends HvacException {
   public HvacMessageParseException(Throwable cause, Object props) {
-    super("Cannot parse device JSON response (" + cause.getMessage() + ")", cause, props);
+    super(
+        "Cannot parse device JSON response (" + (cause != null ? cause.getMessage() : "null") + ")",
+        cause,
+        props);
   }
 }
 
 /** Exception thrown when message decryption fails */
 class HvacDecryptionException extends HvacException {
   public HvacDecryptionException(Throwable cause, Object props) {
-    super("Cannot decrypt message (" + cause.getMessage() + ")", cause, props);
+    super(
+        "Cannot decrypt message (" + (cause != null ? cause.getMessage() : "null") + ")",
+        cause,
+        props);
   }
 }
 

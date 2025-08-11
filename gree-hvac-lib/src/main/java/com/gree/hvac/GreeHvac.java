@@ -45,8 +45,12 @@ public final class GreeHvac {
    *
    * @param host the device IP address or hostname
    * @return HvacClient instance
+   * @throws NullPointerException if host is null
    */
   public static HvacClient createClient(String host) {
+    if (host == null) {
+      throw new NullPointerException("Host cannot be null");
+    }
     return new HvacClient(host);
   }
 
@@ -55,8 +59,12 @@ public final class GreeHvac {
    *
    * @param options client configuration options
    * @return HvacClient instance
+   * @throws NullPointerException if options is null
    */
   public static HvacClient createClient(HvacClientOptions options) {
+    if (options == null) {
+      throw new NullPointerException("Options cannot be null");
+    }
     return new HvacClient(options);
   }
 
@@ -65,8 +73,12 @@ public final class GreeHvac {
    *
    * @param deviceInfo discovered device information
    * @return HvacClient instance
+   * @throws NullPointerException if deviceInfo is null
    */
   public static HvacClient createClient(DeviceInfo deviceInfo) {
+    if (deviceInfo == null) {
+      throw new NullPointerException("DeviceInfo cannot be null");
+    }
     return new HvacClient(deviceInfo.getIpAddress());
   }
 

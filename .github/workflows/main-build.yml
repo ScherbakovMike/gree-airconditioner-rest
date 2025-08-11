@@ -53,7 +53,7 @@ jobs:
         mvn sonar:sonar \
           -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} \
           -Dsonar.host.url=${{ vars.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
     - name: Upload Coverage Reports to Codecov
       uses: codecov/codecov-action@v4
