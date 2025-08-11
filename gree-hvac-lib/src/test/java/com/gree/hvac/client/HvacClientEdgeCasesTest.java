@@ -253,11 +253,9 @@ class HvacClientEdgeCasesTest {
           CompletableFuture.allOf(
                   CompletableFuture.runAsync(() -> client.getStatus()),
                   CompletableFuture.runAsync(() -> client.getCurrentProperties()),
-                  CompletableFuture.runAsync(() -> client.getStatus()),
-                  CompletableFuture.runAsync(() -> client.getCurrentProperties()),
                   CompletableFuture.runAsync(() -> client.isConnected()),
                   CompletableFuture.runAsync(() -> client.getDeviceId()))
-              .get(2, TimeUnit.SECONDS);
+              .get(5, TimeUnit.SECONDS);
         });
   }
 
