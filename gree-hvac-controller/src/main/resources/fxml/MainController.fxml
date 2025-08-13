@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="mainContainer" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gree.hvac.controller.MainController">
+   <children>
+      <!-- Header -->
+      <HBox alignment="CENTER" styleClass="header">
+         <children>
+            <Label text="GREE HVAC Controller" styleClass="header-title" />
+         </children>
+         <padding>
+            <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+         </padding>
+      </HBox>
+      
+      <!-- Device Discovery Section -->
+      <VBox spacing="10" styleClass="section">
+         <children>
+            <Label text="Device Discovery" styleClass="section-title" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+               <children>
+                  <Button fx:id="discoverButton" onAction="#onDiscoverDevices" text="Discover Devices" styleClass="primary-button" />
+                  <ProgressIndicator fx:id="discoveryProgress" visible="false" />
+                  <Label text="Click to discover GREE HVAC devices on your network" styleClass="help-text" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Device Table -->
+      <VBox spacing="10" styleClass="section" VBox.vgrow="ALWAYS">
+         <children>
+            <Label text="Discovered Devices" styleClass="section-title" />
+            <TableView fx:id="deviceTable" VBox.vgrow="ALWAYS" styleClass="device-table">
+               <columns>
+                  <TableColumn fx:id="nameColumn" text="Name" prefWidth="150.0" />
+                  <TableColumn fx:id="ipColumn" text="IP Address" prefWidth="120.0" />
+                  <TableColumn fx:id="modelColumn" text="Model" prefWidth="120.0" />
+                  <TableColumn fx:id="statusColumn" text="Status" prefWidth="100.0" />
+               </columns>
+            </TableView>
+         </children>
+         <padding>
+            <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Device Connection Section -->
+      <VBox spacing="10" styleClass="section">
+         <children>
+            <Label text="Device Connection" styleClass="section-title" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+               <children>
+                  <Label fx:id="deviceInfoLabel" text="No device selected" styleClass="device-info" />
+                  <Button fx:id="connectButton" onAction="#onConnectToDevice" text="Connect" disabled="true" styleClass="primary-button" />
+                  <Button fx:id="disconnectButton" onAction="#onDisconnect" text="Disconnect" disabled="true" styleClass="secondary-button" />
+                  <ProgressIndicator fx:id="connectionProgress" visible="false" />
+               </children>
+            </HBox>
+            <Label fx:id="connectionStatusLabel" text="Not connected" styleClass="status-text" />
+         </children>
+         <padding>
+            <Insets top="10.0" right="20.0" bottom="10.0" left="20.0" />
+         </padding>
+      </VBox>
+      
+      <!-- Control Panel -->
+      <VBox fx:id="controlPanel" spacing="15" styleClass="section" VBox.vgrow="ALWAYS">
+         <children>
+            <Label text="Device Control" styleClass="section-title" />
+            
+            <!-- Power Control -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+               <children>
+                  <Label text="Power:" styleClass="control-label" />
+                  <ToggleButton fx:id="powerToggle" text="OFF" styleClass="power-toggle" />
+               </children>
+            </HBox>
+            
+            <!-- Temperature Control -->
+            <VBox spacing="5">
+               <children>
+                  <HBox spacing="20" alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="Temperature:" styleClass="control-label" />
+                        <Label fx:id="temperatureLabel" text="24°C" styleClass="temperature-display" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="20" alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="16°C" styleClass="temp-range-label" />
+                        <Slider fx:id="temperatureSlider" min="16.0" max="30.0" value="24.0" HBox.hgrow="ALWAYS" />
+                        <Label text="30°C" styleClass="temp-range-label" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            
+            <!-- Mode and Fan Speed -->
+            <HBox spacing="40" alignment="CENTER_LEFT">
+               <children>
+                  <VBox spacing="5">
+                     <children>
+                        <Label text="Mode:" styleClass="control-label" />
+                        <ComboBox fx:id="modeComboBox" prefWidth="120.0" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5">
+                     <children>
+                        <Label text="Fan Speed:" styleClass="control-label" />
+                        <ComboBox fx:id="fanSpeedComboBox" prefWidth="120.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Additional Controls -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+               <children>
+                  <VBox spacing="5">
+                     <children>
+                        <Label text="Turbo:" styleClass="control-label" />
+                        <ToggleButton fx:id="turboToggle" text="OFF" styleClass="feature-toggle" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5">
+                     <children>
+                        <Label text="Quiet:" styleClass="control-label" />
+                        <ToggleButton fx:id="quietToggle" text="OFF" styleClass="feature-toggle" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Current Status Display -->
+            <VBox spacing="5" styleClass="status-section">
+               <children>
+                  <Label text="Current Status" styleClass="section-subtitle" />
+                  <HBox spacing="20" alignment="CENTER_LEFT">
+                     <children>
+                        <Label text="Current Temperature:" styleClass="status-label" />
+                        <Label fx:id="currentTempLabel" text="--°C" styleClass="current-temp-display" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets top="10.0" right="20.0" bottom="20.0" left="20.0" />
+         </padding>
+      </VBox>
+   </children>
+   <padding>
+      <Insets top="0.0" right="0.0" bottom="0.0" left="0.0" />
+   </padding>
+</VBox>
+

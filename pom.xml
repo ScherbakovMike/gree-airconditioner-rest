@@ -36,6 +36,7 @@
     <modules>
         <module>gree-hvac-lib</module>
         <module>airconditioner-rest-api</module>
+        <module>gree-hvac-controller</module>
     </modules>
 
     <dependencyManagement>
