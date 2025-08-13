@@ -26,6 +26,9 @@ public class GreeHvacControllerApp extends Application {
             this.primaryStage = primaryStage;
             log.info("Starting GREE HVAC Controller application");
             
+            // Prevent JavaFX from exiting when all windows are hidden
+            Platform.setImplicitExit(false);
+            
             // Initialize system tray
             initializeSystemTray();
             
@@ -45,6 +48,13 @@ public class GreeHvacControllerApp extends Application {
             primaryStage.setOnCloseRequest(e -> {
                 e.consume();
                 minimizeToTray();
+            });
+            
+            // Handle iconified (minimize) event - also minimize to tray
+            primaryStage.iconifiedProperty().addListener((obs, wasIconified, isIconified) -> {
+                if (isIconified && !isMinimizedToTray) {
+                    Platform.runLater(this::minimizeToTray);
+                }
             });
             
             primaryStage.show();
@@ -234,7 +244,7 @@ public class GreeHvacControllerApp extends Application {
                         // Wait a moment, then connect to new device
                         selectedDevice = newSelectedDevice;
                         java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
-                            .execute(() -> Platform.runLater(() -> connectToDevice()));
+                            .execute(() -> Platform.runLater(this::connectToDevice));
                     } else {
                         // Normal selection (not switching)
                         selectedDevice = newSelectedDevice;
@@ -311,7 +321,7 @@ public class GreeHvacControllerApp extends Application {
         }));
         
         MenuItem showItem = new MenuItem("Show Window");
-        showItem.addActionListener(e -> Platform.runLater(() -> showFromTray()));
+        showItem.addActionListener(e -> Platform.runLater(this::showFromTray));
         
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener(e -> Platform.runLater(() -> {
@@ -326,7 +336,7 @@ public class GreeHvacControllerApp extends Application {
         popup.add(exitItem);
         
         trayIcon.setPopupMenu(popup);
-        trayIcon.addActionListener(e -> Platform.runLater(() -> showFromTray()));
+        trayIcon.addActionListener(e -> Platform.runLater(this::showFromTray));
         
         try {
             systemTray.add(trayIcon);
@@ -380,7 +390,9 @@ public class GreeHvacControllerApp extends Application {
     private void showFromTray() {
         if (isMinimizedToTray) {
             primaryStage.show();
+            primaryStage.setIconified(false);
             primaryStage.toFront();
+            primaryStage.requestFocus();
             isMinimizedToTray = false;
         }
     }
@@ -395,9 +407,7 @@ public class GreeHvacControllerApp extends Application {
         performDiscovery();
         
         // Schedule periodic discovery every 30 seconds
-        discoveryTask = discoveryExecutor.scheduleAtFixedRate(() -> {
-            performDiscovery();
-        }, 30, 30, java.util.concurrent.TimeUnit.SECONDS);
+        discoveryTask = discoveryExecutor.scheduleAtFixedRate(this::performDiscovery, 30, 30, java.util.concurrent.TimeUnit.SECONDS);
     }
     
     private void performDiscovery() {
@@ -542,9 +552,7 @@ public class GreeHvacControllerApp extends Application {
         }
         
         // Poll device status every 3 seconds
-        statusPollingTask = statusPollingExecutor.scheduleAtFixedRate(() -> {
-            updateDeviceStatus();
-        }, 1, 3, java.util.concurrent.TimeUnit.SECONDS);
+        statusPollingTask = statusPollingExecutor.scheduleAtFixedRate(this::updateDeviceStatus, 1, 3, java.util.concurrent.TimeUnit.SECONDS);
     }
     
     private void stopStatusPolling() {
@@ -626,7 +634,7 @@ public class GreeHvacControllerApp extends Application {
             .thenRun(() -> {
                 // Wait a moment then update status
                 java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
-                    .execute(() -> updateDeviceStatus());
+                    .execute(this::updateDeviceStatus);
             });
     }
     
@@ -661,7 +669,7 @@ public class GreeHvacControllerApp extends Application {
             .thenRun(() -> {
                 // Wait a moment then update status
                 java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
-                    .execute(() -> updateDeviceStatus());
+                    .execute(this::updateDeviceStatus);
             });
     }
     
@@ -675,7 +683,7 @@ public class GreeHvacControllerApp extends Application {
             .thenRun(() -> {
                 // Wait a moment then update status
                 java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
-                    .execute(() -> updateDeviceStatus());
+                    .execute(this::updateDeviceStatus);
             });
     }
     
@@ -689,7 +697,7 @@ public class GreeHvacControllerApp extends Application {
             .thenRun(() -> {
                 // Wait a moment then update status
                 java.util.concurrent.CompletableFuture.delayedExecutor(1, java.util.concurrent.TimeUnit.SECONDS)
-                    .execute(() -> updateDeviceStatus());
+                    .execute(this::updateDeviceStatus);
             });
     }
     
