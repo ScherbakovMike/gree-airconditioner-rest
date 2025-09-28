@@ -22,19 +22,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class HvacClientTest {
 
   private HvacClient client;
-  private HvacClientOptions options;
-  private MockNetworkService mockNetworkService;
 
   @BeforeEach
   void setUp() {
-    options =
+    var options =
         new HvacClientOptions("192.168.1.100")
             .setAutoConnect(false) // Disable auto-connect for testing
             .setPoll(false) // Disable polling for testing
             .setConnectTimeout(100) // Short timeout for testing
             .setPollingTimeout(100);
 
-    mockNetworkService = new MockNetworkService();
+    var mockNetworkService = new MockNetworkService();
     client = new HvacClient(options, mockNetworkService);
   }
 
@@ -64,9 +62,8 @@ class HvacClientTest {
 
   @Test
   void testConstructorWithNullOptions() {
-    HvacClientOptions nullOptions = null;
     MockNetworkService testMockService = new MockNetworkService();
-    HvacClient testClient = new HvacClient(nullOptions, testMockService);
+    HvacClient testClient = new HvacClient(null, testMockService);
 
     assertNotNull(testClient);
     assertFalse(testClient.isConnected());
@@ -217,11 +214,11 @@ class HvacClientTest {
     CountDownLatch noResponseLatch = new CountDownLatch(1);
 
     // Register event listeners
-    client.onConnect(() -> connectLatch.countDown());
+    client.onConnect(connectLatch::countDown);
     client.onStatusUpdate(statusUpdate::set);
     client.onError(errorUpdate::set);
-    client.onDisconnect(() -> disconnectLatch.countDown());
-    client.onNoResponse(() -> noResponseLatch.countDown());
+    client.onDisconnect(disconnectLatch::countDown);
+    client.onNoResponse(noResponseLatch::countDown);
 
     // Verify listeners are registered (they should be called during connection attempts)
     assertNotNull(client);
@@ -232,8 +229,8 @@ class HvacClientTest {
     CountDownLatch latch1 = new CountDownLatch(1);
     CountDownLatch latch2 = new CountDownLatch(1);
 
-    client.onConnect(() -> latch1.countDown());
-    client.onConnect(() -> latch2.countDown());
+    client.onConnect(latch1::countDown);
+    client.onConnect(latch2::countDown);
 
     // Both listeners should be registered
     assertNotNull(client);
@@ -319,12 +316,16 @@ class HvacClientTest {
   @Test
   void testDeviceControlWithNullValues() {
     DeviceControl control = new DeviceControl();
-    // All values are null by default
+    // Explicitly set some values to null to test null handling
+    control.setPower(null);
+    control.setTemperature(null);
+    control.setMode(null);
 
     CompletableFuture<Void> result = client.control(control);
     assertNotNull(result);
 
-    // Should handle null values gracefully, may complete without exception if no properties to set
+    // Should handle explicit null values gracefully, but may complete without exception
+    // since no properties are actually set (nulls are filtered out)
     assertDoesNotThrow(
         () -> {
           try {
@@ -375,7 +376,7 @@ class HvacClientTest {
   }
 
   @Test
-  void testConnectWithValidOptions() throws Exception {
+  void testConnectWithValidOptions() {
     HvacClientOptions validOptions =
         new HvacClientOptions("192.168.1.100")
             .setPort(7000)

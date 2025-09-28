@@ -12,6 +12,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GreeHvacControllerApp extends Application {
 
+  // String constants
+  private static final String APP_TITLE = "GREE HVAC Controller";
+  private static final String CONNECT_BUTTON_TEXT = "Connect";
+
+  // CSS style constants
+  private static final String CSS_CENTER_ALIGNMENT = "-fx-alignment: center;";
+  private static final String CSS_WARNING_TEXT_STYLE =
+      "-fx-text-fill: #FF9800; -fx-font-style: italic;";
+  private static final String CSS_SUCCESS_BUTTON_STYLE =
+      "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;";
+  private static final String CSS_ERROR_TEXT_STYLE =
+      "-fx-text-fill: #F44336; -fx-font-style: italic;";
+
   private Stage primaryStage;
   private SystemTray systemTray;
   private TrayIcon trayIcon;
@@ -21,7 +34,7 @@ public class GreeHvacControllerApp extends Application {
   public void start(Stage primaryStage) {
     try {
       this.primaryStage = primaryStage;
-      log.info("Starting GREE HVAC Controller application");
+      log.info("Starting " + APP_TITLE + " application");
 
       // Prevent JavaFX from exiting when all windows are hidden
       Platform.setImplicitExit(false);
@@ -36,7 +49,7 @@ public class GreeHvacControllerApp extends Application {
       Scene scene = new Scene(root, 900, 500);
 
       // Configure the primary stage
-      primaryStage.setTitle("GREE HVAC Controller");
+      primaryStage.setTitle(APP_TITLE);
       primaryStage.setScene(scene);
       primaryStage.setMinWidth(800);
       primaryStage.setMinHeight(450);
@@ -63,7 +76,7 @@ public class GreeHvacControllerApp extends Application {
       // Start automatic discovery
       startBackgroundDiscovery();
 
-      log.info("GREE HVAC Controller application started successfully");
+      log.info(APP_TITLE + " application started successfully");
 
     } catch (Exception e) {
       log.error("Failed to start application", e);
@@ -128,12 +141,12 @@ public class GreeHvacControllerApp extends Application {
         "-fx-background-color: linear-gradient(to right, #2196F3, #1976D2); -fx-padding: 15; -fx-alignment: center-left;");
 
     // App title
-    javafx.scene.control.Label titleLabel = new javafx.scene.control.Label("GREE HVAC Controller");
+    javafx.scene.control.Label titleLabel = new javafx.scene.control.Label(APP_TITLE);
     titleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
 
     // Control panel in header
     javafx.scene.layout.HBox controlsBox = createHeaderControls();
-    controlsBox.setStyle("-fx-alignment: center;");
+    controlsBox.setStyle(CSS_CENTER_ALIGNMENT);
 
     // Current temperature in top right
     VBox tempStatusBox = new VBox(2);
@@ -155,7 +168,7 @@ public class GreeHvacControllerApp extends Application {
 
   private javafx.scene.layout.HBox createHeaderControls() {
     javafx.scene.layout.HBox controlsBox = new javafx.scene.layout.HBox(15);
-    controlsBox.setStyle("-fx-alignment: center;");
+    controlsBox.setStyle(CSS_CENTER_ALIGNMENT);
 
     // Power control
     powerToggle = new javafx.scene.control.ToggleButton("OFF");
@@ -166,12 +179,12 @@ public class GreeHvacControllerApp extends Application {
 
     // Temperature control with + and - buttons
     VBox tempBox = new VBox(2);
-    tempBox.setStyle("-fx-alignment: center;");
+    tempBox.setStyle(CSS_CENTER_ALIGNMENT);
     temperatureLabel = new javafx.scene.control.Label("24°C");
     temperatureLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
 
     javafx.scene.layout.HBox tempButtonBox = new javafx.scene.layout.HBox(5);
-    tempButtonBox.setStyle("-fx-alignment: center;");
+    tempButtonBox.setStyle(CSS_CENTER_ALIGNMENT);
 
     tempMinusButton = new javafx.scene.control.Button("−");
     tempMinusButton.setStyle(
@@ -246,7 +259,7 @@ public class GreeHvacControllerApp extends Application {
                 // Show switching status
                 connectionStatusLabel.setText(
                     "Switching to " + newSelectedDevice.getName() + "...");
-                connectionStatusLabel.setStyle("-fx-text-fill: #FF9800; -fx-font-style: italic;");
+                connectionStatusLabel.setStyle(CSS_WARNING_TEXT_STYLE);
 
                 // Disconnect from current device first (silently for switching)
                 disconnectFromDevice(true);
@@ -265,9 +278,8 @@ public class GreeHvacControllerApp extends Application {
           }
         });
 
-    connectButton = new javafx.scene.control.Button("Connect");
-    connectButton.setStyle(
-        "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;");
+    connectButton = new javafx.scene.control.Button(CONNECT_BUTTON_TEXT);
+    connectButton.setStyle(CSS_SUCCESS_BUTTON_STYLE);
     connectButton.setDisable(true);
     connectButton.setOnAction(e -> connectToDevice());
 
@@ -320,7 +332,7 @@ public class GreeHvacControllerApp extends Application {
 
     // Create a simple 16x16 icon for Windows 11 compatibility
     Image image = createTrayIcon();
-    trayIcon = new TrayIcon(image, "GREE HVAC Controller");
+    trayIcon = new TrayIcon(image, APP_TITLE);
     trayIcon.setImageAutoSize(true);
 
     // Create popup menu
@@ -409,7 +421,7 @@ public class GreeHvacControllerApp extends Application {
       primaryStage.hide();
       isMinimizedToTray = true;
       trayIcon.displayMessage(
-          "GREE HVAC Controller", "Application minimized to tray", TrayIcon.MessageType.INFO);
+          APP_TITLE, "Application minimized to tray", TrayIcon.MessageType.INFO);
     }
   }
 
@@ -452,8 +464,7 @@ public class GreeHvacControllerApp extends Application {
                       if (devicesChanged) {
                         if (devices.isEmpty()) {
                           connectionStatusLabel.setText("No devices found on network");
-                          connectionStatusLabel.setStyle(
-                              "-fx-text-fill: #FF9800; -fx-font-style: italic;");
+                          connectionStatusLabel.setStyle(CSS_WARNING_TEXT_STYLE);
                         } else {
                           connectionStatusLabel.setText(
                               "Found " + devices.size() + " device(s). Select one to connect.");
@@ -467,8 +478,7 @@ public class GreeHvacControllerApp extends Application {
               Platform.runLater(
                   () -> {
                     connectionStatusLabel.setText("Discovery error: " + throwable.getMessage());
-                    connectionStatusLabel.setStyle(
-                        "-fx-text-fill: #F44336; -fx-font-style: italic;");
+                    connectionStatusLabel.setStyle(CSS_ERROR_TEXT_STYLE);
                   });
               return null;
             });
@@ -503,7 +513,7 @@ public class GreeHvacControllerApp extends Application {
     connectButton.setText("Connecting...");
     connectButton.setDisable(true);
     connectionStatusLabel.setText("Connecting to " + selectedDevice.getName() + "...");
-    connectionStatusLabel.setStyle("-fx-text-fill: #FF9800; -fx-font-style: italic;");
+    connectionStatusLabel.setStyle(CSS_WARNING_TEXT_STYLE);
 
     try {
       currentClient = com.gree.hvac.GreeHvac.createClient(selectedDevice);
@@ -539,15 +549,13 @@ public class GreeHvacControllerApp extends Application {
               throwable -> {
                 Platform.runLater(
                     () -> {
-                      connectButton.setText("Connect");
-                      connectButton.setStyle(
-                          "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;");
+                      connectButton.setText(CONNECT_BUTTON_TEXT);
+                      connectButton.setStyle(CSS_SUCCESS_BUTTON_STYLE);
                       connectButton.setOnAction(e -> connectToDevice());
                       connectButton.setDisable(false);
 
                       connectionStatusLabel.setText("Connection failed: " + throwable.getMessage());
-                      connectionStatusLabel.setStyle(
-                          "-fx-text-fill: #F44336; -fx-font-style: italic;");
+                      connectionStatusLabel.setStyle(CSS_ERROR_TEXT_STYLE);
                       currentClient = null;
 
                       showInlineStatus("Failed to connect: " + throwable.getMessage(), true);
@@ -555,10 +563,10 @@ public class GreeHvacControllerApp extends Application {
                 return null;
               });
     } catch (Exception e) {
-      connectButton.setText("Connect");
+      connectButton.setText(CONNECT_BUTTON_TEXT);
       connectButton.setDisable(false);
       connectionStatusLabel.setText("Error: " + e.getMessage());
-      connectionStatusLabel.setStyle("-fx-text-fill: #F44336; -fx-font-style: italic;");
+      connectionStatusLabel.setStyle(CSS_ERROR_TEXT_STYLE);
       showInlineStatus("Connection error: " + e.getMessage(), true);
     }
   }
@@ -573,9 +581,8 @@ public class GreeHvacControllerApp extends Application {
       currentClient = null;
     }
 
-    connectButton.setText("Connect");
-    connectButton.setStyle(
-        "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;");
+    connectButton.setText(CONNECT_BUTTON_TEXT);
+    connectButton.setStyle(CSS_SUCCESS_BUTTON_STYLE);
     connectButton.setOnAction(e -> connectToDevice());
     connectButton.setDisable(selectedDevice == null);
 
@@ -757,7 +764,7 @@ public class GreeHvacControllerApp extends Application {
 
   @Override
   public void stop() {
-    log.info("Stopping GREE HVAC Controller application");
+    log.info("Stopping " + APP_TITLE + " application");
 
     // Clean up resources
     if (currentClient != null) {

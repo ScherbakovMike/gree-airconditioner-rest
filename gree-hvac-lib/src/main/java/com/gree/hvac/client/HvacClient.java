@@ -237,25 +237,25 @@ public class HvacClient {
 
   /** Build properties map from DeviceControl object */
   private Map<String, Object> buildControlProperties(DeviceControl control) {
-    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> controlProperties = new HashMap<>();
 
-    addBooleanProperty(properties, PROPERTY_POWER, control.getPower());
-    addValueProperty(properties, PROPERTY_TEMPERATURE, control.getTemperature());
-    addLowerCaseStringProperty(properties, PROPERTY_MODE, control.getMode());
-    addLowerCaseStringProperty(properties, PROPERTY_FAN_SPEED, control.getFanSpeed());
-    addLowerCaseStringProperty(properties, PROPERTY_SWING_HOR, control.getSwingHorizontal());
-    addLowerCaseStringProperty(properties, PROPERTY_SWING_VERT, control.getSwingVertical());
-    addBooleanProperty(properties, PROPERTY_LIGHTS, control.getLights());
-    addBooleanProperty(properties, PROPERTY_TURBO, control.getTurbo());
-    addBooleanProperty(properties, PROPERTY_QUIET, control.getQuiet());
-    addBooleanProperty(properties, PROPERTY_HEALTH, control.getHealth());
-    addBooleanProperty(properties, PROPERTY_POWER_SAVE, control.getPowerSave());
-    addBooleanProperty(properties, PROPERTY_SLEEP, control.getSleep());
-    addBooleanProperty(properties, PROPERTY_AIR, control.getAir());
-    addBooleanProperty(properties, PROPERTY_BLOW, control.getBlow());
-    addBooleanProperty(properties, PROPERTY_SAFETY_HEATING, control.getSafetyHeating());
+    addBooleanProperty(controlProperties, PROPERTY_POWER, control.getPower());
+    addValueProperty(controlProperties, PROPERTY_TEMPERATURE, control.getTemperature());
+    addLowerCaseStringProperty(controlProperties, PROPERTY_MODE, control.getMode());
+    addLowerCaseStringProperty(controlProperties, PROPERTY_FAN_SPEED, control.getFanSpeed());
+    addLowerCaseStringProperty(controlProperties, PROPERTY_SWING_HOR, control.getSwingHorizontal());
+    addLowerCaseStringProperty(controlProperties, PROPERTY_SWING_VERT, control.getSwingVertical());
+    addBooleanProperty(controlProperties, PROPERTY_LIGHTS, control.getLights());
+    addBooleanProperty(controlProperties, PROPERTY_TURBO, control.getTurbo());
+    addBooleanProperty(controlProperties, PROPERTY_QUIET, control.getQuiet());
+    addBooleanProperty(controlProperties, PROPERTY_HEALTH, control.getHealth());
+    addBooleanProperty(controlProperties, PROPERTY_POWER_SAVE, control.getPowerSave());
+    addBooleanProperty(controlProperties, PROPERTY_SLEEP, control.getSleep());
+    addBooleanProperty(controlProperties, PROPERTY_AIR, control.getAir());
+    addBooleanProperty(controlProperties, PROPERTY_BLOW, control.getBlow());
+    addBooleanProperty(controlProperties, PROPERTY_SAFETY_HEATING, control.getSafetyHeating());
 
-    return properties;
+    return controlProperties;
   }
 
   /** Add boolean property as on/off value */
@@ -679,22 +679,33 @@ public class HvacClient {
   /** Create feature map from control properties for validation */
   private Map<String, Object> createFeatureMapFromControl(DeviceControl control) {
     Map<String, Object> featureMap = new HashMap<>();
-    if (control.getBlow() != null && control.getBlow()) featureMap.put(FEATURE_BLOW, true);
-    if (control.getHealth() != null && control.getHealth()) featureMap.put(PROPERTY_HEALTH, true);
-    if (control.getPowerSave() != null && control.getPowerSave())
-      featureMap.put(FEATURE_POWERSAVE, true);
-    if (control.getSafetyHeating() != null && control.getSafetyHeating())
-      featureMap.put(FEATURE_SAFETYHEATING, true);
-    if (control.getAir() != null && control.getAir()) featureMap.put(FEATURE_AIR, true);
 
-    // Add wind setting validation
-    if (control.getFanSpeed() != null && !"auto".equalsIgnoreCase(control.getFanSpeed())) {
-      featureMap.put(FEATURE_FANSPEED, control.getFanSpeed());
-    }
-    if (control.getQuiet() != null && control.getQuiet()) featureMap.put(PROPERTY_QUIET, true);
-    if (control.getTurbo() != null && control.getTurbo()) featureMap.put(PROPERTY_TURBO, true);
+    addBooleanFeature(featureMap, FEATURE_BLOW, control.getBlow());
+    addBooleanFeature(featureMap, PROPERTY_HEALTH, control.getHealth());
+    addBooleanFeature(featureMap, FEATURE_POWERSAVE, control.getPowerSave());
+    addBooleanFeature(featureMap, FEATURE_SAFETYHEATING, control.getSafetyHeating());
+    addBooleanFeature(featureMap, FEATURE_AIR, control.getAir());
+    addBooleanFeature(featureMap, PROPERTY_QUIET, control.getQuiet());
+    addBooleanFeature(featureMap, PROPERTY_TURBO, control.getTurbo());
+
+    addFanSpeedFeature(featureMap, control.getFanSpeed());
 
     return featureMap;
+  }
+
+  /** Add boolean feature to map if enabled */
+  private void addBooleanFeature(
+      Map<String, Object> featureMap, String featureName, Boolean value) {
+    if (Boolean.TRUE.equals(value)) {
+      featureMap.put(featureName, true);
+    }
+  }
+
+  /** Add fan speed feature if not auto */
+  private void addFanSpeedFeature(Map<String, Object> featureMap, String fanSpeed) {
+    if (fanSpeed != null && !"auto".equalsIgnoreCase(fanSpeed)) {
+      featureMap.put(FEATURE_FANSPEED, fanSpeed);
+    }
   }
 
   /** Validates feature compatibility with current AC mode */
@@ -830,64 +841,11 @@ public class HvacClient {
     return CompletableFuture.runAsync(
         () -> {
           try {
-            DeviceStatus status = getStatus();
-            String mode = status.getMode();
+            String mode = getCurrentModeOrThrow();
+            DeviceControl control = createControlForFeature(feature, value);
+            Map<String, Object> featureMap = createFeatureMapFromControl(control);
 
-            if (mode == null) {
-              throw new HvacException("Cannot determine current AC mode");
-            }
-
-            // Create a simple control with just this feature
-            DeviceControl control = new DeviceControl();
-            Map<String, Object> featureMap = new HashMap<>();
-
-            // Set the feature based on its name
-            switch (feature.toLowerCase()) {
-              case FEATURE_BLOW:
-                if (value instanceof Boolean boolValue) {
-                  control.setBlow(boolValue);
-                  if (Boolean.TRUE.equals(boolValue)) featureMap.put(FEATURE_BLOW, true);
-                }
-                break;
-              case PROPERTY_HEALTH:
-                if (value instanceof Boolean boolValue) {
-                  control.setHealth(boolValue);
-                  if (Boolean.TRUE.equals(boolValue)) featureMap.put(PROPERTY_HEALTH, true);
-                }
-                break;
-              case FEATURE_POWERSAVE:
-                if (value instanceof Boolean boolValue) {
-                  control.setPowerSave(boolValue);
-                  if (Boolean.TRUE.equals(boolValue)) featureMap.put(FEATURE_POWERSAVE, true);
-                }
-                break;
-              case PROPERTY_QUIET:
-                if (value instanceof Boolean boolValue) {
-                  control.setQuiet(boolValue);
-                  if (Boolean.TRUE.equals(boolValue)) featureMap.put(PROPERTY_QUIET, true);
-                }
-                break;
-              case PROPERTY_TURBO:
-                if (value instanceof Boolean boolValue) {
-                  control.setTurbo(boolValue);
-                  if (Boolean.TRUE.equals(boolValue)) featureMap.put(PROPERTY_TURBO, true);
-                }
-                break;
-              default:
-                throw new HvacException("Unknown feature: " + feature);
-            }
-
-            // Validate the feature
-            List<String> errors =
-                ModeFeatureValidator.validateFeatureRequest(
-                    mode, featureMap, options.isValidateWindSettings());
-
-            if (!errors.isEmpty() && options.getValidationMode() == ValidationMode.STRICT) {
-              throw new HvacFeatureValidationException(mode, errors);
-            }
-
-            // Send the control if validation passes or is in warn mode
-            control(control).get();
+            validateAndExecuteControl(mode, control, featureMap);
 
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -897,6 +855,66 @@ public class HvacClient {
             throw new HvacClientOperationException("Control validation failed", e);
           }
         });
+  }
+
+  /** Get current mode or throw exception */
+  private String getCurrentModeOrThrow() throws HvacException {
+    DeviceStatus status = getStatus();
+    String mode = status.getMode();
+    if (mode == null) {
+      throw new HvacException("Cannot determine current AC mode");
+    }
+    return mode;
+  }
+
+  /** Create DeviceControl with single feature set */
+  private DeviceControl createControlForFeature(String feature, Object value) throws HvacException {
+    DeviceControl control = new DeviceControl();
+
+    switch (feature.toLowerCase()) {
+      case FEATURE_BLOW:
+        setBooleanFeatureOnControl(control::setBlow, value);
+        break;
+      case PROPERTY_HEALTH:
+        setBooleanFeatureOnControl(control::setHealth, value);
+        break;
+      case FEATURE_POWERSAVE:
+        setBooleanFeatureOnControl(control::setPowerSave, value);
+        break;
+      case PROPERTY_QUIET:
+        setBooleanFeatureOnControl(control::setQuiet, value);
+        break;
+      case PROPERTY_TURBO:
+        setBooleanFeatureOnControl(control::setTurbo, value);
+        break;
+      default:
+        throw new HvacException("Unknown feature: " + feature);
+    }
+
+    return control;
+  }
+
+  /** Set boolean feature on control if value is boolean */
+  private void setBooleanFeatureOnControl(
+      java.util.function.Consumer<Boolean> setter, Object value) {
+    if (value instanceof Boolean boolValue) {
+      setter.accept(boolValue);
+    }
+  }
+
+  /** Validate feature and execute control */
+  private void validateAndExecuteControl(
+      String mode, DeviceControl control, Map<String, Object> featureMap)
+      throws InterruptedException, java.util.concurrent.ExecutionException {
+    List<String> errors =
+        ModeFeatureValidator.validateFeatureRequest(
+            mode, featureMap, options.isValidateWindSettings());
+
+    if (!errors.isEmpty() && options.getValidationMode() == ValidationMode.STRICT) {
+      throw new HvacFeatureValidationException(mode, errors);
+    }
+
+    control(control).get();
   }
 
   // Event notification methods
