@@ -47,4 +47,13 @@ public class DeviceStatus {
 
   /** Sleep mode state */
   private Boolean sleep;
+
+  /** Fresh air intake status */
+  private Boolean air;
+
+  /** X-Fan auto dry mode status */
+  private Boolean blow;
+
+  /** Safety heating mode status */
+  private Boolean safetyHeating;
 }

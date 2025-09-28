@@ -11,6 +11,8 @@ public class HvacClientOptions {
   private int pollingTimeout = 1000;
   private String logLevel = "error";
   private boolean debug = false;
+  private ValidationMode validationMode = ValidationMode.getDefault();
+  private boolean validateWindSettings = true;
 
   public HvacClientOptions() {}
 
@@ -97,6 +99,24 @@ public class HvacClientOptions {
 
   public HvacClientOptions setDebug(boolean debug) {
     this.debug = debug;
+    return this;
+  }
+
+  public ValidationMode getValidationMode() {
+    return validationMode;
+  }
+
+  public HvacClientOptions setValidationMode(ValidationMode validationMode) {
+    this.validationMode = validationMode != null ? validationMode : ValidationMode.getDefault();
+    return this;
+  }
+
+  public boolean isValidateWindSettings() {
+    return validateWindSettings;
+  }
+
+  public HvacClientOptions setValidateWindSettings(boolean validateWindSettings) {
+    this.validateWindSettings = validateWindSettings;
     return this;
   }
 }

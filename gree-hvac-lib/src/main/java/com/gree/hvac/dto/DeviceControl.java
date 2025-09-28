@@ -41,4 +41,13 @@ public class DeviceControl {
 
   /** Sleep mode */
   private Boolean sleep;
+
+  /** Fresh air intake control */
+  private Boolean air;
+
+  /** X-Fan auto dry mode (keeps fan running after cooling to dry evaporator) */
+  private Boolean blow;
+
+  /** Safety heating mode (8°C heating for frost protection) */
+  private Boolean safetyHeating;
 }
