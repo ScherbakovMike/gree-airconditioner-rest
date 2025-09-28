@@ -8,6 +8,10 @@ import java.util.*;
  */
 public class ModeFeatureValidator {
 
+  private ModeFeatureValidator() {
+    // Utility class - prevent instantiation
+  }
+
   // Mode constants
   public static final String MODE_AUTO = "auto";
   public static final String MODE_COOL = "cool";
@@ -186,18 +190,17 @@ public class ModeFeatureValidator {
       return errors;
     }
 
-    for (String feature : requestedFeatures.keySet()) {
-      Object value = requestedFeatures.get(feature);
+    for (Map.Entry<String, Object> entry : requestedFeatures.entrySet()) {
+      String feature = entry.getKey();
+      Object value = entry.getValue();
 
       // Only validate boolean features that are being turned ON
-      if (value instanceof Boolean && (Boolean) value) {
-        if (!isFeatureAvailable(feature, mode)) {
-          Set<String> availableModes = getAvailableModesForFeature(feature);
-          errors.add(
-              String.format(
-                  "Feature '%s' is not available in mode '%s'. Available in: %s",
-                  feature, mode, availableModes));
-        }
+      if (value instanceof Boolean && (Boolean) value && !isFeatureAvailable(feature, mode)) {
+        Set<String> availableModes = getAvailableModesForFeature(feature);
+        errors.add(
+            String.format(
+                "Feature '%s' is not available in mode '%s'. Available in: %s",
+                feature, mode, availableModes));
       }
 
       // Validate wind settings if enabled
@@ -228,13 +231,14 @@ public class ModeFeatureValidator {
                 "Quiet mode is not available in mode '%s'. Available in: %s",
                 mode, getAvailableModesForWindSetting("quiet")));
       }
-    } else if ("turbo".equalsIgnoreCase(feature) && value instanceof Boolean && (Boolean) value) {
-      if (!isWindSettingAvailable("turbo", mode)) {
-        errors.add(
-            String.format(
-                "Turbo mode is not available in mode '%s'. Available in: %s",
-                mode, getAvailableModesForWindSetting("turbo")));
-      }
+    } else if ("turbo".equalsIgnoreCase(feature)
+        && value instanceof Boolean
+        && (Boolean) value
+        && !isWindSettingAvailable("turbo", mode)) {
+      errors.add(
+          String.format(
+              "Turbo mode is not available in mode '%s'. Available in: %s",
+              mode, getAvailableModesForWindSetting("turbo")));
     }
   }
 

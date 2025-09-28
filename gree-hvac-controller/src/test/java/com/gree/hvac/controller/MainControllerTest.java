@@ -23,12 +23,6 @@ class MainControllerTest {
   }
 
   @Test
-  void testSetPrimaryStage() {
-    // Test that primary stage can be set
-    assertDoesNotThrow(() -> controller.setPrimaryStage(mockStage));
-  }
-
-  @Test
   void testInitialization() {
     // Test that controller can be instantiated
     assertNotNull(controller);

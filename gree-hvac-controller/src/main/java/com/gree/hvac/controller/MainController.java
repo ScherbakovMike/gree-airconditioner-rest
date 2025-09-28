@@ -14,7 +14,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 /** Main controller for the GREE HVAC Controller application */
@@ -65,7 +64,6 @@ public class MainController {
 
   @FXML private ProgressIndicator connectionProgress;
 
-  private Stage primaryStage;
   private HvacClient currentClient;
   private DeviceInfo selectedDevice;
   private final ObservableList<DeviceInfo> discoveredDevices = FXCollections.observableArrayList();
@@ -287,26 +285,6 @@ public class MainController {
             });
   }
 
-  private void updateDeviceTemperature(double temperature) {
-    if (currentClient == null || !currentClient.isConnected()) return;
-
-    DeviceControl control = new DeviceControl();
-    control.setTemperature((int) temperature);
-    currentClient
-        .control(control)
-        .thenRun(() -> log.info("Updated device temperature: {}°C", temperature))
-        .exceptionally(
-            throwable -> {
-              log.error("Failed to update device temperature", throwable);
-              Platform.runLater(
-                  () ->
-                      showAlert(
-                          "Control Error",
-                          "Failed to update temperature: " + throwable.getMessage()));
-              return null;
-            });
-  }
-
   private void updateDeviceMode(String mode) {
     if (currentClient == null || !currentClient.isConnected()) return;
 
@@ -357,6 +335,10 @@ public class MainController {
               DeviceStatus status = currentClient.getStatus();
               Platform.runLater(() -> updateStatusDisplay(status));
               Thread.sleep(5000);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+              log.info("Status polling interrupted");
+              break;
             } catch (Exception e) {
               log.error("Error polling device status", e);
               break;
@@ -422,9 +404,5 @@ public class MainController {
     alert.setHeaderText(null);
     alert.setContentText(content);
     alert.showAndWait();
-  }
-
-  public void setPrimaryStage(Stage primaryStage) {
-    this.primaryStage = primaryStage;
   }
 }

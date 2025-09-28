@@ -97,6 +97,9 @@ public class HvacClient {
           () -> {
             try {
               connect().get();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+              notifyError(e);
             } catch (Exception e) {
               notifyError(e);
             }
@@ -196,6 +199,9 @@ public class HvacClient {
 
             setProperties(properties).get();
 
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -343,6 +349,7 @@ public class HvacClient {
         scheduler.shutdownNow();
       }
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       scheduler.shutdownNow();
     }
   }
@@ -872,6 +879,9 @@ public class HvacClient {
             // Send the control if validation passes or is in warn mode
             control(control).get();
 
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }

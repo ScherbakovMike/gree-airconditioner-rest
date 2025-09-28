@@ -173,13 +173,13 @@ public class GreeHvacControllerApp extends Application {
     javafx.scene.layout.HBox tempButtonBox = new javafx.scene.layout.HBox(5);
     tempButtonBox.setStyle("-fx-alignment: center;");
 
-    javafx.scene.control.Button tempMinusButton = new javafx.scene.control.Button("−");
+    tempMinusButton = new javafx.scene.control.Button("−");
     tempMinusButton.setStyle(
         "-fx-background-color: #FF5722; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4px 8px; -fx-font-size: 14px; -fx-min-width: 30px;");
     tempMinusButton.setOnAction(e -> decreaseTemperature());
     tempMinusButton.setDisable(true);
 
-    javafx.scene.control.Button tempPlusButton = new javafx.scene.control.Button("+");
+    tempPlusButton = new javafx.scene.control.Button("+");
     tempPlusButton.setStyle(
         "-fx-background-color: #FF5722; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4px 8px; -fx-font-size: 14px; -fx-min-width: 30px;");
     tempPlusButton.setOnAction(e -> increaseTemperature());
