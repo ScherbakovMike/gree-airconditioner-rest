@@ -433,9 +433,9 @@ public class HvacClient {
     packedMessage.put("i", 0);
     packedMessage.put("t", "pack");
     packedMessage.put("uid", 0);
-    packedMessage.put("pack", encrypted.getPayload());
-    if (encrypted.getTag() != null) {
-      packedMessage.put("tag", encrypted.getTag());
+    packedMessage.put("pack", encrypted.payload());
+    if (encrypted.tag() != null) {
+      packedMessage.put("tag", encrypted.tag());
     }
 
     socketSend(packedMessage);
@@ -506,9 +506,9 @@ public class HvacClient {
     packedMessage.put("i", 1);
     packedMessage.put("t", "pack");
     packedMessage.put("uid", 0);
-    packedMessage.put("pack", encrypted.getPayload());
-    if (encrypted.getTag() != null) {
-      packedMessage.put("tag", encrypted.getTag());
+    packedMessage.put("pack", encrypted.payload());
+    if (encrypted.tag() != null) {
+      packedMessage.put("tag", encrypted.tag());
     }
 
     socketSend(packedMessage);

@@ -3,15 +3,19 @@ package com.gree.hvac.protocol;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 
 /** Device property value constants */
+@UtilityClass
 public class PropertyValue {
 
+  @UtilityClass
   public static class Power {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class Mode {
     public static final String AUTO = "auto";
     public static final String COOL = "cool";
@@ -20,11 +24,13 @@ public class PropertyValue {
     public static final String HEAT = "heat";
   }
 
+  @UtilityClass
   public static class TemperatureUnit {
     public static final String CELSIUS = "celsius";
     public static final String FAHRENHEIT = "fahrenheit";
   }
 
+  @UtilityClass
   public static class FanSpeed {
     public static final String AUTO = "auto";
     public static final String LOW = "low";
@@ -34,6 +40,7 @@ public class PropertyValue {
     public static final String HIGH = "high";
   }
 
+  @UtilityClass
   public static class Air {
     public static final String OFF = "off";
     public static final String INSIDE = "inside";
@@ -41,26 +48,31 @@ public class PropertyValue {
     public static final String MODE3 = "mode3";
   }
 
+  @UtilityClass
   public static class Blow {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class Health {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class Sleep {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class Lights {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class SwingHor {
     public static final String DEFAULT = "default";
     public static final String FULL = "full";
@@ -72,6 +84,7 @@ public class PropertyValue {
     public static final String FULL_ALT = "fullAlt";
   }
 
+  @UtilityClass
   public static class SwingVert {
     public static final String DEFAULT = "default";
     public static final String FULL = "full";
@@ -87,6 +100,7 @@ public class PropertyValue {
     public static final String SWING_TOP = "swingTop";
   }
 
+  @UtilityClass
   public static class Quiet {
     public static final String OFF = "off";
     public static final String MODE1 = "mode1";
@@ -94,16 +108,19 @@ public class PropertyValue {
     public static final String MODE3 = "mode3";
   }
 
+  @UtilityClass
   public static class Turbo {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class PowerSave {
     public static final String OFF = "off";
     public static final String ON = "on";
   }
 
+  @UtilityClass
   public static class SafetyHeating {
     public static final String OFF = "off";
     public static final String ON = "on";

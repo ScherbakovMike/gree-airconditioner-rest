@@ -125,49 +125,61 @@ class PropertyValueTest {
   }
 
   @Test
-  void testGetVendorValues() {
+  void testGetVendorValuesNotNull() {
     Map<String, Map<String, Integer>> vendorValues = PropertyValue.getVendorValues();
-
     assertNotNull(vendorValues);
     assertFalse(vendorValues.isEmpty());
+  }
 
-    // Test power mapping
-    Map<String, Integer> powerValues = vendorValues.get("power");
+  @Test
+  void testVendorValuesPowerMapping() {
+    Map<String, Integer> powerValues = PropertyValue.getVendorValues().get("power");
     assertNotNull(powerValues);
     assertEquals(0, powerValues.get(PropertyValue.Power.OFF));
     assertEquals(1, powerValues.get(PropertyValue.Power.ON));
+  }
 
-    // Test mode mapping
-    Map<String, Integer> modeValues = vendorValues.get("mode");
+  @Test
+  void testVendorValuesModeMapping() {
+    Map<String, Integer> modeValues = PropertyValue.getVendorValues().get("mode");
     assertNotNull(modeValues);
     assertEquals(0, modeValues.get(PropertyValue.Mode.AUTO));
     assertEquals(1, modeValues.get(PropertyValue.Mode.COOL));
     assertEquals(2, modeValues.get(PropertyValue.Mode.DRY));
     assertEquals(3, modeValues.get(PropertyValue.Mode.FAN_ONLY));
     assertEquals(4, modeValues.get(PropertyValue.Mode.HEAT));
+  }
 
-    // Test temperature unit mapping
-    Map<String, Integer> tempUnitValues = vendorValues.get("temperatureUnit");
+  @Test
+  void testVendorValuesTemperatureUnitMapping() {
+    Map<String, Integer> tempUnitValues = PropertyValue.getVendorValues().get("temperatureUnit");
     assertNotNull(tempUnitValues);
     assertEquals(0, tempUnitValues.get(PropertyValue.TemperatureUnit.CELSIUS));
     assertEquals(1, tempUnitValues.get(PropertyValue.TemperatureUnit.FAHRENHEIT));
+  }
 
-    // Test temperature mapping (16-30 Celsius)
-    Map<String, Integer> temperatureValues = vendorValues.get("temperature");
+  @Test
+  void testVendorValuesTemperatureMapping() {
+    Map<String, Integer> temperatureValues = PropertyValue.getVendorValues().get("temperature");
     assertNotNull(temperatureValues);
     assertEquals(0, temperatureValues.get("16"));
     assertEquals(5, temperatureValues.get("21"));
     assertEquals(14, temperatureValues.get("30"));
+  }
 
-    // Test current temperature mapping (0-50 Celsius)
-    Map<String, Integer> currentTemperatureValues = vendorValues.get("currentTemperature");
+  @Test
+  void testVendorValuesCurrentTemperatureMapping() {
+    Map<String, Integer> currentTemperatureValues =
+        PropertyValue.getVendorValues().get("currentTemperature");
     assertNotNull(currentTemperatureValues);
     assertEquals(0, currentTemperatureValues.get("0"));
     assertEquals(22, currentTemperatureValues.get("22"));
     assertEquals(50, currentTemperatureValues.get("50"));
+  }
 
-    // Test fan speed mapping
-    Map<String, Integer> fanSpeedValues = vendorValues.get("fanSpeed");
+  @Test
+  void testVendorValuesFanSpeedMapping() {
+    Map<String, Integer> fanSpeedValues = PropertyValue.getVendorValues().get("fanSpeed");
     assertNotNull(fanSpeedValues);
     assertEquals(0, fanSpeedValues.get(PropertyValue.FanSpeed.AUTO));
     assertEquals(1, fanSpeedValues.get(PropertyValue.FanSpeed.LOW));
@@ -175,41 +187,53 @@ class PropertyValueTest {
     assertEquals(3, fanSpeedValues.get(PropertyValue.FanSpeed.MEDIUM));
     assertEquals(4, fanSpeedValues.get(PropertyValue.FanSpeed.MEDIUM_HIGH));
     assertEquals(5, fanSpeedValues.get(PropertyValue.FanSpeed.HIGH));
+  }
 
-    // Test air mapping
-    Map<String, Integer> airValues = vendorValues.get("air");
+  @Test
+  void testVendorValuesAirMapping() {
+    Map<String, Integer> airValues = PropertyValue.getVendorValues().get("air");
     assertNotNull(airValues);
     assertEquals(0, airValues.get(PropertyValue.Air.OFF));
     assertEquals(1, airValues.get(PropertyValue.Air.INSIDE));
     assertEquals(2, airValues.get(PropertyValue.Air.OUTSIDE));
     assertEquals(3, airValues.get(PropertyValue.Air.MODE3));
+  }
 
-    // Test blow mapping
-    Map<String, Integer> blowValues = vendorValues.get("blow");
+  @Test
+  void testVendorValuesBlowMapping() {
+    Map<String, Integer> blowValues = PropertyValue.getVendorValues().get("blow");
     assertNotNull(blowValues);
     assertEquals(0, blowValues.get(PropertyValue.Blow.OFF));
     assertEquals(1, blowValues.get(PropertyValue.Blow.ON));
+  }
 
-    // Test health mapping
-    Map<String, Integer> healthValues = vendorValues.get("health");
+  @Test
+  void testVendorValuesHealthMapping() {
+    Map<String, Integer> healthValues = PropertyValue.getVendorValues().get("health");
     assertNotNull(healthValues);
     assertEquals(0, healthValues.get(PropertyValue.Health.OFF));
     assertEquals(1, healthValues.get(PropertyValue.Health.ON));
+  }
 
-    // Test sleep mapping
-    Map<String, Integer> sleepValues = vendorValues.get("sleep");
+  @Test
+  void testVendorValuesSleepMapping() {
+    Map<String, Integer> sleepValues = PropertyValue.getVendorValues().get("sleep");
     assertNotNull(sleepValues);
     assertEquals(0, sleepValues.get(PropertyValue.Sleep.OFF));
     assertEquals(1, sleepValues.get(PropertyValue.Sleep.ON));
+  }
 
-    // Test lights mapping
-    Map<String, Integer> lightsValues = vendorValues.get("lights");
+  @Test
+  void testVendorValuesLightsMapping() {
+    Map<String, Integer> lightsValues = PropertyValue.getVendorValues().get("lights");
     assertNotNull(lightsValues);
     assertEquals(0, lightsValues.get(PropertyValue.Lights.OFF));
     assertEquals(1, lightsValues.get(PropertyValue.Lights.ON));
+  }
 
-    // Test swing horizontal mapping
-    Map<String, Integer> swingHorValues = vendorValues.get("swingHor");
+  @Test
+  void testVendorValuesSwingHorMapping() {
+    Map<String, Integer> swingHorValues = PropertyValue.getVendorValues().get("swingHor");
     assertNotNull(swingHorValues);
     assertEquals(0, swingHorValues.get(PropertyValue.SwingHor.DEFAULT));
     assertEquals(1, swingHorValues.get(PropertyValue.SwingHor.FULL));
@@ -219,9 +243,11 @@ class PropertyValueTest {
     assertEquals(5, swingHorValues.get(PropertyValue.SwingHor.FIXED_MID_RIGHT));
     assertEquals(6, swingHorValues.get(PropertyValue.SwingHor.FIXED_RIGHT));
     assertEquals(7, swingHorValues.get(PropertyValue.SwingHor.FULL_ALT));
+  }
 
-    // Test swing vertical mapping
-    Map<String, Integer> swingVertValues = vendorValues.get("swingVert");
+  @Test
+  void testVendorValuesSwingVertMapping() {
+    Map<String, Integer> swingVertValues = PropertyValue.getVendorValues().get("swingVert");
     assertNotNull(swingVertValues);
     assertEquals(0, swingVertValues.get(PropertyValue.SwingVert.DEFAULT));
     assertEquals(1, swingVertValues.get(PropertyValue.SwingVert.FULL));
@@ -235,29 +261,37 @@ class PropertyValueTest {
     assertEquals(9, swingVertValues.get(PropertyValue.SwingVert.SWING_MID));
     assertEquals(10, swingVertValues.get(PropertyValue.SwingVert.SWING_MID_TOP));
     assertEquals(11, swingVertValues.get(PropertyValue.SwingVert.SWING_TOP));
+  }
 
-    // Test quiet mapping
-    Map<String, Integer> quietValues = vendorValues.get("quiet");
+  @Test
+  void testVendorValuesQuietMapping() {
+    Map<String, Integer> quietValues = PropertyValue.getVendorValues().get("quiet");
     assertNotNull(quietValues);
     assertEquals(0, quietValues.get(PropertyValue.Quiet.OFF));
     assertEquals(1, quietValues.get(PropertyValue.Quiet.MODE1));
     assertEquals(2, quietValues.get(PropertyValue.Quiet.MODE2));
     assertEquals(3, quietValues.get(PropertyValue.Quiet.MODE3));
+  }
 
-    // Test turbo mapping
-    Map<String, Integer> turboValues = vendorValues.get("turbo");
+  @Test
+  void testVendorValuesTurboMapping() {
+    Map<String, Integer> turboValues = PropertyValue.getVendorValues().get("turbo");
     assertNotNull(turboValues);
     assertEquals(0, turboValues.get(PropertyValue.Turbo.OFF));
     assertEquals(1, turboValues.get(PropertyValue.Turbo.ON));
+  }
 
-    // Test power save mapping
-    Map<String, Integer> powerSaveValues = vendorValues.get("powerSave");
+  @Test
+  void testVendorValuesPowerSaveMapping() {
+    Map<String, Integer> powerSaveValues = PropertyValue.getVendorValues().get("powerSave");
     assertNotNull(powerSaveValues);
     assertEquals(0, powerSaveValues.get(PropertyValue.PowerSave.OFF));
     assertEquals(1, powerSaveValues.get(PropertyValue.PowerSave.ON));
+  }
 
-    // Test safety heating mapping
-    Map<String, Integer> safetyHeatingValues = vendorValues.get("safetyHeating");
+  @Test
+  void testVendorValuesSafetyHeatingMapping() {
+    Map<String, Integer> safetyHeatingValues = PropertyValue.getVendorValues().get("safetyHeating");
     assertNotNull(safetyHeatingValues);
     assertEquals(0, safetyHeatingValues.get(PropertyValue.SafetyHeating.OFF));
     assertEquals(1, safetyHeatingValues.get(PropertyValue.SafetyHeating.ON));
@@ -265,22 +299,16 @@ class PropertyValueTest {
 
   @Test
   void testVendorValuesImmutability() {
-    Map<String, Map<String, Integer>> vendorValues = PropertyValue.getVendorValues();
+    Map<String, Map<String, Integer>> vendorValues =
+        new java.util.HashMap<>(PropertyValue.getVendorValues());
 
     // Verify that the returned map is not modifiable
     assertThrows(
-        UnsupportedOperationException.class,
-        () -> {
-          vendorValues.put("test", Map.of("test", 1));
-        });
+        UnsupportedOperationException.class, () -> vendorValues.put("test", Map.of("test", 1)));
 
     // Verify that the inner maps are also not modifiable
     Map<String, Integer> powerValues = vendorValues.get("power");
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> {
-          powerValues.put("test", 999);
-        });
+    assertThrows(UnsupportedOperationException.class, () -> powerValues.put("test", 999));
   }
 
   @Test

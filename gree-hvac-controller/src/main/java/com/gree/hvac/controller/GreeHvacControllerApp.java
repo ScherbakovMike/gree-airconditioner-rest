@@ -620,39 +620,57 @@ public class GreeHvacControllerApp extends Application {
 
     try {
       com.gree.hvac.dto.DeviceStatus status = currentClient.getStatus();
-      javafx.application.Platform.runLater(
-          () -> {
-            if (status != null) {
-              // Update power toggle
-              if (status.getPower() != null) {
-                powerToggle.setSelected(status.getPower());
-                powerToggle.setText(status.getPower() ? "ON" : "OFF");
-              }
-
-              // Update temperature setting and label
-              if (status.getTemperature() != null) {
-                currentTemperature = status.getTemperature();
-                temperatureLabel.setText(currentTemperature + "°C");
-              }
-
-              // Update current temperature
-              if (status.getCurrentTemperature() != null && currentTempLabel != null) {
-                currentTempLabel.setText("Current: " + status.getCurrentTemperature() + "°C");
-              }
-
-              // Update mode
-              if (status.getMode() != null) {
-                modeComboBox.setValue(status.getMode().toUpperCase());
-              }
-
-              // Update fan speed
-              if (status.getFanSpeed() != null) {
-                fanSpeedComboBox.setValue(status.getFanSpeed().toUpperCase());
-              }
-            }
-          });
+      javafx.application.Platform.runLater(() -> updateUIFromStatus(status));
     } catch (Exception e) {
       // Silently handle status update errors to avoid spamming the UI
+    }
+  }
+
+  /** Update UI components from device status */
+  private void updateUIFromStatus(com.gree.hvac.dto.DeviceStatus status) {
+    if (status == null) return;
+
+    updatePowerToggle(status);
+    updateTemperatureDisplay(status);
+    updateCurrentTemperatureDisplay(status);
+    updateModeDisplay(status);
+    updateFanSpeedDisplay(status);
+  }
+
+  /** Update power toggle from status */
+  private void updatePowerToggle(com.gree.hvac.dto.DeviceStatus status) {
+    if (status.getPower() != null) {
+      powerToggle.setSelected(status.getPower());
+      powerToggle.setText(status.getPower() ? "ON" : "OFF");
+    }
+  }
+
+  /** Update temperature setting display from status */
+  private void updateTemperatureDisplay(com.gree.hvac.dto.DeviceStatus status) {
+    if (status.getTemperature() != null) {
+      currentTemperature = status.getTemperature();
+      temperatureLabel.setText(currentTemperature + "°C");
+    }
+  }
+
+  /** Update current temperature display from status */
+  private void updateCurrentTemperatureDisplay(com.gree.hvac.dto.DeviceStatus status) {
+    if (status.getCurrentTemperature() != null && currentTempLabel != null) {
+      currentTempLabel.setText("Current: " + status.getCurrentTemperature() + "°C");
+    }
+  }
+
+  /** Update mode display from status */
+  private void updateModeDisplay(com.gree.hvac.dto.DeviceStatus status) {
+    if (status.getMode() != null) {
+      modeComboBox.setValue(status.getMode().toUpperCase());
+    }
+  }
+
+  /** Update fan speed display from status */
+  private void updateFanSpeedDisplay(com.gree.hvac.dto.DeviceStatus status) {
+    if (status.getFanSpeed() != null) {
+      fanSpeedComboBox.setValue(status.getFanSpeed().toUpperCase());
     }
   }
 

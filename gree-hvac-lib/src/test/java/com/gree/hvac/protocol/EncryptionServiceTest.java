@@ -2,6 +2,8 @@ package com.gree.hvac.protocol;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.security.GeneralSecurityException;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,19 +20,44 @@ class EncryptionServiceTest {
     encryptionService = new EncryptionService();
   }
 
+  private void assertValidEncryptedMessage(EncryptionService.EncryptedMessage encrypted) {
+    assertNotNull(encrypted);
+    assertNotNull(encrypted.payload());
+    assertNotNull(encrypted.cipher());
+    assertNotNull(encrypted.key());
+
+    assertFalse(encrypted.payload().isEmpty());
+    assertFalse(encrypted.cipher().isEmpty());
+    assertFalse(encrypted.key().isEmpty());
+
+    if ("gcm".equals(encrypted.cipher())) {
+      assertNotNull(encrypted.tag());
+      assertFalse(encrypted.tag().isEmpty());
+    }
+  }
+
+  private JSONObject createReceivedMessage(EncryptionService.EncryptedMessage encrypted) {
+    JSONObject receivedMessage = new JSONObject();
+    receivedMessage.put("pack", encrypted.payload());
+    receivedMessage.put("tag", encrypted.tag());
+    receivedMessage.put("cipher", encrypted.cipher());
+    receivedMessage.put("key", encrypted.key());
+    return receivedMessage;
+  }
+
   @Test
   void testConstructor() {
     assertNotNull(encryptionService);
     assertNotNull(encryptionService.getKey());
     // Should start with ECB cipher
-    assertTrue(encryptionService.getKey().length() > 0);
+    assertFalse(encryptionService.getKey().isEmpty());
   }
 
   @Test
   void testGetKey() {
     String key = encryptionService.getKey();
     assertNotNull(key);
-    assertTrue(key.length() > 0);
+    assertFalse(key.isEmpty());
   }
 
   @Test
@@ -41,22 +68,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(message);
-      assertNotNull(encrypted);
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // Verify the encrypted message has the required fields
-      assertTrue(encrypted.getPayload().length() > 0);
-      assertTrue(encrypted.getCipher().length() > 0);
-      assertTrue(encrypted.getKey().length() > 0);
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-        assertTrue(encrypted.getTag().length() > 0);
-      }
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -69,16 +82,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(bindMessage);
-      assertNotNull(encrypted);
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-      }
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -99,9 +104,9 @@ class EncryptionServiceTest {
       assertNotNull(encrypted2);
 
       // Both should be valid encrypted messages
-      assertTrue(encrypted1.getPayload().length() > 0);
-      assertTrue(encrypted2.getPayload().length() > 0);
-    } catch (Exception e) {
+      assertFalse(encrypted1.payload().isEmpty());
+      assertFalse(encrypted2.payload().isEmpty());
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -117,17 +122,12 @@ class EncryptionServiceTest {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(message);
 
       // Then decrypt (simulating received message)
-      JSONObject receivedMessage = new JSONObject();
-      receivedMessage.put("pack", encrypted.getPayload());
-      receivedMessage.put("tag", encrypted.getTag());
-      receivedMessage.put("cipher", encrypted.getCipher());
-      receivedMessage.put("key", encrypted.getKey());
-
+      JSONObject receivedMessage = createReceivedMessage(encrypted);
       JSONObject decrypted = encryptionService.decrypt(receivedMessage);
       assertNotNull(decrypted);
       assertEquals("status", decrypted.getString("t"));
       assertEquals("test-mac", decrypted.getString("mac"));
-    } catch (Exception e) {
+    } catch (GeneralSecurityException | JSONException e) {
       fail("Encryption/decryption should not throw exception: " + e.getMessage());
     }
   }
@@ -143,12 +143,7 @@ class EncryptionServiceTest {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(bindOkMessage);
 
       // Then decrypt (simulating received message)
-      JSONObject receivedMessage = new JSONObject();
-      receivedMessage.put("pack", encrypted.getPayload());
-      receivedMessage.put("tag", encrypted.getTag());
-      receivedMessage.put("cipher", encrypted.getCipher());
-      receivedMessage.put("key", encrypted.getKey());
-
+      JSONObject receivedMessage = createReceivedMessage(encrypted);
       JSONObject decrypted = encryptionService.decrypt(receivedMessage);
       assertNotNull(decrypted);
       assertEquals("bindok", decrypted.getString("t"));
@@ -157,7 +152,7 @@ class EncryptionServiceTest {
       // The key should be updated after bindok message
       String updatedKey = encryptionService.getKey();
       assertNotNull(updatedKey);
-    } catch (Exception e) {
+    } catch (GeneralSecurityException | JSONException e) {
       fail("Encryption/decryption should not throw exception: " + e.getMessage());
     }
   }
@@ -168,16 +163,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(emptyMessage);
-      assertNotNull(encrypted);
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-      }
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -191,16 +178,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(message);
-      assertNotNull(encrypted);
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-      }
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -219,16 +198,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(largeMessage);
-      assertNotNull(encrypted);
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-      }
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -253,10 +224,10 @@ class EncryptionServiceTest {
       assertNotNull(encrypted2);
 
       // Both should be valid
-      assertTrue(encrypted1.getPayload().length() > 0);
-      assertTrue(encrypted2.getPayload().length() > 0);
+      assertFalse(encrypted1.payload().isEmpty());
+      assertFalse(encrypted2.payload().isEmpty());
 
-    } catch (Exception e) {
+    } catch (GeneralSecurityException e) {
       fail("Cipher switching should not throw exception: " + e.getMessage());
     }
   }
@@ -269,24 +240,8 @@ class EncryptionServiceTest {
 
     try {
       EncryptionService.EncryptedMessage encrypted = encryptionService.encrypt(message);
-
-      // Test getter methods
-      assertNotNull(encrypted.getPayload());
-      assertNotNull(encrypted.getCipher());
-      assertNotNull(encrypted.getKey());
-
-      // Test that all fields have content
-      assertTrue(encrypted.getPayload().length() > 0);
-      assertTrue(encrypted.getCipher().length() > 0);
-      assertTrue(encrypted.getKey().length() > 0);
-
-      // For ECB cipher, tag is null; for GCM cipher, tag should be present
-      if ("gcm".equals(encrypted.getCipher())) {
-        assertNotNull(encrypted.getTag());
-        assertTrue(encrypted.getTag().length() > 0);
-      }
-
-    } catch (Exception e) {
+      assertValidEncryptedMessage(encrypted);
+    } catch (GeneralSecurityException e) {
       fail("Encryption should not throw exception: " + e.getMessage());
     }
   }
@@ -303,10 +258,10 @@ class EncryptionServiceTest {
 
       // Then decrypt
       JSONObject receivedMessage = new JSONObject();
-      receivedMessage.put("pack", encrypted.getPayload());
-      receivedMessage.put("tag", encrypted.getTag());
-      receivedMessage.put("cipher", encrypted.getCipher());
-      receivedMessage.put("key", encrypted.getKey());
+      receivedMessage.put("pack", encrypted.payload());
+      receivedMessage.put("tag", encrypted.tag());
+      receivedMessage.put("cipher", encrypted.cipher());
+      receivedMessage.put("key", encrypted.key());
 
       JSONObject decrypted = encryptionService.decrypt(receivedMessage);
 
@@ -315,7 +270,7 @@ class EncryptionServiceTest {
       assertEquals("test", decrypted.getString("t"));
       assertEquals(42, decrypted.getInt("value"));
 
-    } catch (Exception e) {
+    } catch (GeneralSecurityException | JSONException e) {
       fail("Encryption/decryption should not throw exception: " + e.getMessage());
     }
   }
@@ -338,10 +293,10 @@ class EncryptionServiceTest {
 
         // Decrypt
         JSONObject receivedMessage = new JSONObject();
-        receivedMessage.put("pack", encrypted.getPayload());
-        receivedMessage.put("tag", encrypted.getTag());
-        receivedMessage.put("cipher", encrypted.getCipher());
-        receivedMessage.put("key", encrypted.getKey());
+        receivedMessage.put("pack", encrypted.payload());
+        receivedMessage.put("tag", encrypted.tag());
+        receivedMessage.put("cipher", encrypted.cipher());
+        receivedMessage.put("key", encrypted.key());
 
         JSONObject decrypted = encryptionService.decrypt(receivedMessage);
         assertNotNull(decrypted);
@@ -349,7 +304,7 @@ class EncryptionServiceTest {
         assertEquals(i + 1, decrypted.getInt("counter"));
         assertEquals("test-data", decrypted.getString("data"));
       }
-    } catch (Exception e) {
+    } catch (GeneralSecurityException | JSONException e) {
       fail("Multiple encryption/decryption cycles should not throw exception: " + e.getMessage());
     }
   }

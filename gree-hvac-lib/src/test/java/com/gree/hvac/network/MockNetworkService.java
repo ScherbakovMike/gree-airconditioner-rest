@@ -1,6 +1,7 @@
 package com.gree.hvac.network;
 
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,8 +13,8 @@ public class MockNetworkService implements NetworkService {
   private final ConcurrentHashMap<MockNetworkSocket, Consumer<byte[]>> messageHandlers =
       new ConcurrentHashMap<>();
   private volatile boolean simulateConnectionFailure = false;
-  private volatile boolean simulateBindFailure = false;
-  private volatile InetAddress mockAddress;
+  private final boolean simulateBindFailure = false;
+  private final InetAddress mockAddress;
 
   public MockNetworkService() {
     try {
@@ -24,29 +25,27 @@ public class MockNetworkService implements NetworkService {
   }
 
   @Override
-  public NetworkSocket createSocket(int port) throws Exception {
+  public NetworkSocket createSocket(int port) throws SocketException {
     if (simulateConnectionFailure) {
-      throw new Exception("Simulated connection failure");
+      throw new SocketException("Simulated connection failure");
     }
     return new MockNetworkSocket();
   }
 
   @Override
-  public InetAddress resolveAddress(String hostname) throws Exception {
+  public InetAddress resolveAddress(String hostname) {
     return mockAddress;
   }
 
   @Override
-  public CompletableFuture<Void> startListening(
-      NetworkSocket socket, Consumer<byte[]> messageHandler) {
+  public void startListening(NetworkSocket socket, Consumer<byte[]> messageHandler) {
     MockNetworkSocket mockSocket = (MockNetworkSocket) socket;
     messageHandlers.put(mockSocket, messageHandler);
-    return CompletableFuture.completedFuture(null);
+    CompletableFuture.completedFuture(null);
   }
 
   @Override
-  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port)
-      throws Exception {
+  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port) {
     MockNetworkSocket mockSocket = (MockNetworkSocket) socket;
     mockSocket.addSentMessage(data);
 
@@ -84,17 +83,6 @@ public class MockNetworkService implements NetworkService {
   // Mock control methods
   public void simulateConnectionFailure(boolean simulate) {
     this.simulateConnectionFailure = simulate;
-  }
-
-  public void simulateBindFailure(boolean simulate) {
-    this.simulateBindFailure = simulate;
-  }
-
-  public void simulateMessage(NetworkSocket socket, String message) {
-    Consumer<byte[]> handler = messageHandlers.get(socket);
-    if (handler != null) {
-      handler.accept(message.getBytes());
-    }
   }
 
   private void simulateDeviceResponse(MockNetworkSocket socket) {
@@ -192,18 +180,6 @@ public class MockNetworkService implements NetworkService {
     public void addSentMessage(byte[] message) {
       synchronized (sentMessages) {
         sentMessages.add(message.clone());
-      }
-    }
-
-    public java.util.List<byte[]> getSentMessages() {
-      synchronized (sentMessages) {
-        return new java.util.ArrayList<>(sentMessages);
-      }
-    }
-
-    public void clearSentMessages() {
-      synchronized (sentMessages) {
-        sentMessages.clear();
       }
     }
   }

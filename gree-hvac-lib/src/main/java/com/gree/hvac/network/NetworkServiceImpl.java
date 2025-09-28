@@ -1,8 +1,11 @@
 package com.gree.hvac.network;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -13,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NetworkServiceImpl implements NetworkService {
 
   @Override
-  public NetworkSocket createSocket(int port) throws Exception {
+  public NetworkSocket createSocket(int port) throws SocketException {
     try {
       DatagramSocket socket = new DatagramSocket(port);
       socket.setBroadcast(true);
@@ -24,18 +27,13 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public InetAddress resolveAddress(String hostname) {
-    try {
-      return InetAddress.getByName(hostname);
-    } catch (Exception e) {
-      throw new NetworkAddressException("Failed to resolve hostname: " + hostname, e);
-    }
+  public InetAddress resolveAddress(String hostname) throws UnknownHostException {
+    return InetAddress.getByName(hostname);
   }
 
   @Override
-  public CompletableFuture<Void> startListening(
-      NetworkSocket socket, Consumer<byte[]> messageHandler) {
-    return CompletableFuture.runAsync(
+  public void startListening(NetworkSocket socket, Consumer<byte[]> messageHandler) {
+    CompletableFuture.runAsync(
         () -> {
           DatagramSocket datagramSocket = (DatagramSocket) socket.getUnderlyingSocket();
           byte[] buffer = new byte[1024];
@@ -57,14 +55,11 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port) {
-    try {
-      DatagramSocket datagramSocket = (DatagramSocket) socket.getUnderlyingSocket();
-      DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-      datagramSocket.send(packet);
-    } catch (Exception e) {
-      throw new NetworkTransmissionException("Failed to send data to " + address + ":" + port, e);
-    }
+  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port)
+      throws IOException {
+    DatagramSocket datagramSocket = (DatagramSocket) socket.getUnderlyingSocket();
+    DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+    datagramSocket.send(packet);
   }
 
   @Override

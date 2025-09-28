@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MainController {
 
+  private static final String CONTROL_ERROR_TITLE = "Control Error";
+
   @FXML private Button discoverButton;
 
   @FXML private Button connectButton;
@@ -272,7 +274,8 @@ public class MainController {
               Platform.runLater(
                   () ->
                       showAlert(
-                          "Control Error", "Failed to update power: " + throwable.getMessage()));
+                          CONTROL_ERROR_TITLE,
+                          "Failed to update power: " + throwable.getMessage()));
               return null;
             });
   }
@@ -291,7 +294,7 @@ public class MainController {
               Platform.runLater(
                   () ->
                       showAlert(
-                          "Control Error", "Failed to update mode: " + throwable.getMessage()));
+                          CONTROL_ERROR_TITLE, "Failed to update mode: " + throwable.getMessage()));
               return null;
             });
   }
@@ -310,7 +313,7 @@ public class MainController {
               Platform.runLater(
                   () ->
                       showAlert(
-                          "Control Error",
+                          CONTROL_ERROR_TITLE,
                           "Failed to update fan speed: " + throwable.getMessage()));
               return null;
             });

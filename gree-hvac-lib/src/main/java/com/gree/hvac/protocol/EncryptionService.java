@@ -1,10 +1,14 @@
 package com.gree.hvac.protocol;
 
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.Getter;
+import lombok.Setter;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +33,9 @@ public class EncryptionService {
   }
 
   /** Decrypt UDP message */
-  public JSONObject decrypt(JSONObject input) throws Exception {
+  public JSONObject decrypt(JSONObject input) throws GeneralSecurityException, JSONException {
     DecryptedMessage decrypted = activeCipher.decrypt(input);
-    JSONObject payload = decrypted.getPayload();
+    JSONObject payload = decrypted.payload();
 
     if (payload.has("t") && "bindok".equals(payload.getString("t"))) {
       activeCipher.setKey(payload.getString("key"));
@@ -42,7 +46,7 @@ public class EncryptionService {
   }
 
   /** Encrypt UDP message */
-  public EncryptedMessage encrypt(JSONObject output) throws Exception {
+  public EncryptedMessage encrypt(JSONObject output) throws GeneralSecurityException {
     if (output.has("t") && "bind".equals(output.getString("t"))) {
       if (bindAttempt == 2) {
         activeCipher = gcmCipher;
@@ -55,60 +59,12 @@ public class EncryptionService {
     return encrypted;
   }
 
-  public static class EncryptedMessage {
-    private final String payload;
-    private final String tag;
-    private final String cipher;
-    private final String key;
+  public record EncryptedMessage(String payload, String tag, String cipher, String key) {}
 
-    public EncryptedMessage(String payload, String tag, String cipher, String key) {
-      this.payload = payload;
-      this.tag = tag;
-      this.cipher = cipher;
-      this.key = key;
-    }
+  public record DecryptedMessage(JSONObject payload, String cipher, String key) {}
 
-    public String getPayload() {
-      return payload;
-    }
-
-    public String getTag() {
-      return tag;
-    }
-
-    public String getCipher() {
-      return cipher;
-    }
-
-    public String getKey() {
-      return key;
-    }
-  }
-
-  public static class DecryptedMessage {
-    private final JSONObject payload;
-    private final String cipher;
-    private final String key;
-
-    public DecryptedMessage(JSONObject payload, String cipher, String key) {
-      this.payload = payload;
-      this.cipher = cipher;
-      this.key = key;
-    }
-
-    public JSONObject getPayload() {
-      return payload;
-    }
-
-    public String getCipher() {
-      return cipher;
-    }
-
-    public String getKey() {
-      return key;
-    }
-  }
-
+  @Setter
+  @Getter
   private abstract static class AbstractCipher {
     protected String key;
 
@@ -116,17 +72,10 @@ public class EncryptionService {
       this.key = defaultKey;
     }
 
-    public void setKey(String key) {
-      this.key = key;
-    }
+    public abstract DecryptedMessage decrypt(JSONObject input)
+        throws GeneralSecurityException, JSONException;
 
-    public String getKey() {
-      return key;
-    }
-
-    public abstract DecryptedMessage decrypt(JSONObject input) throws Exception;
-
-    public abstract EncryptedMessage encrypt(JSONObject output) throws Exception;
+    public abstract EncryptedMessage encrypt(JSONObject output) throws GeneralSecurityException;
   }
 
   /**
@@ -142,7 +91,8 @@ public class EncryptionService {
     }
 
     @Override
-    public DecryptedMessage decrypt(JSONObject input) throws Exception {
+    public DecryptedMessage decrypt(JSONObject input)
+        throws GeneralSecurityException, JSONException {
       // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
@@ -157,7 +107,7 @@ public class EncryptionService {
     }
 
     @Override
-    public EncryptedMessage encrypt(JSONObject output) throws Exception {
+    public EncryptedMessage encrypt(JSONObject output) throws GeneralSecurityException {
       // SonarQube: AES/ECB required for GREE protocol - cannot use secure mode
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding"); // NOSONAR
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
@@ -181,7 +131,8 @@ public class EncryptionService {
     }
 
     @Override
-    public DecryptedMessage decrypt(JSONObject input) throws Exception {
+    public DecryptedMessage decrypt(JSONObject input)
+        throws GeneralSecurityException, JSONException {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
 
@@ -212,7 +163,7 @@ public class EncryptionService {
     }
 
     @Override
-    public EncryptedMessage encrypt(JSONObject output) throws Exception {
+    public EncryptedMessage encrypt(JSONObject output) throws GeneralSecurityException {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
 

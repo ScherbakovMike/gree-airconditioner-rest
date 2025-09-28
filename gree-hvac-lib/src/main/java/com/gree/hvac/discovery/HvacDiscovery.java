@@ -125,27 +125,8 @@ public class HvacDiscovery {
       byte[] receiveData = new byte[1024];
 
       while (timeService.getCurrentTimeMillis() < endTime) {
-        try {
-          DatagramPacket receivePacket = socketService.receivePacket(socket, receiveData);
-
-          String response =
-              new String(
-                  receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
-          log.debug(
-              "Received response from {}: {}",
-              receivePacket.getAddress().getHostAddress(),
-              response);
-
-          DeviceInfo device = parseDeviceResponse(response, receivePacket.getAddress());
-          if (device != null) {
-            devices.add(device);
-            log.info("Discovered device: {} at {}", device.getName(), device.getIpAddress());
-          }
-
-        } catch (SocketTimeoutException e) {
+        if (!processDiscoveryResponse(socket, receiveData, devices)) {
           break;
-        } catch (Exception e) {
-          log.debug("Error processing response packet: {}", e.getMessage());
         }
       }
 
@@ -157,6 +138,32 @@ public class HvacDiscovery {
     }
 
     return devices;
+  }
+
+  private boolean processDiscoveryResponse(
+      DatagramSocket socket, byte[] receiveData, List<DeviceInfo> devices) {
+    try {
+      DatagramPacket receivePacket = socketService.receivePacket(socket, receiveData);
+
+      String response =
+          new String(receivePacket.getData(), 0, receivePacket.getLength(), StandardCharsets.UTF_8);
+      log.debug(
+          "Received response from {}: {}", receivePacket.getAddress().getHostAddress(), response);
+
+      DeviceInfo device = parseDeviceResponse(response, receivePacket.getAddress());
+      if (device != null) {
+        devices.add(device);
+        log.info("Discovered device: {} at {}", device.getName(), device.getIpAddress());
+      }
+
+      return true;
+    } catch (SocketTimeoutException e) {
+      log.debug("Socket timeout during discovery");
+      return false;
+    } catch (Exception e) {
+      log.error("Error processing discovery response: {}", e.getMessage());
+      return false;
+    }
   }
 
   private DeviceInfo parseDeviceResponse(String response, InetAddress sourceAddress) {
