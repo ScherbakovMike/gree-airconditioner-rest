@@ -188,10 +188,6 @@ public class GreeHvacControllerApp extends Application {
     tempButtonBox.getChildren().addAll(tempMinusButton, tempPlusButton);
     tempBox.getChildren().addAll(temperatureLabel, tempButtonBox);
 
-    // Store references for enabling/disabling
-    this.tempMinusButton = tempMinusButton;
-    this.tempPlusButton = tempPlusButton;
-
     // Mode control
     modeComboBox = new javafx.scene.control.ComboBox<>();
     modeComboBox.getItems().addAll("AUTO", "COOL", "HEAT", "DRY", "FAN_ONLY");

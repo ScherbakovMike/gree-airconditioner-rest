@@ -86,3 +86,21 @@ class HvacConnectionCancelledException extends HvacException {
     super("Connection to HVAC device was cancelled");
   }
 }
+
+/** Runtime exception thrown when client operations fail */
+class HvacClientException extends RuntimeException {
+  public HvacClientException(String message) {
+    super(message);
+  }
+
+  public HvacClientException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}
+
+/** Runtime exception thrown when client operations are interrupted */
+class HvacClientInterruptedException extends HvacClientException {
+  public HvacClientInterruptedException(String message, InterruptedException cause) {
+    super(message, cause);
+  }
+}

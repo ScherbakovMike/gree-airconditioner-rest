@@ -195,15 +195,15 @@ public class HvacClient {
             }
 
             // Validate features against current mode
-            validateModeFeatureCompatibility(control, properties);
+            validateModeFeatureCompatibility(control);
 
             setProperties(properties).get();
 
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Control operation was interrupted", e);
           } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Control operation failed", e);
           }
         });
   }
@@ -660,8 +660,7 @@ public class HvacClient {
   }
 
   /** Validates feature compatibility with current AC mode */
-  private void validateModeFeatureCompatibility(
-      DeviceControl control, Map<String, Object> properties) {
+  private void validateModeFeatureCompatibility(DeviceControl control) {
     // Check if validation is disabled
     ValidationMode validationMode = options.getValidationMode();
     if (validationMode == ValidationMode.NONE) {
@@ -881,9 +880,9 @@ public class HvacClient {
 
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Control validation was interrupted", e);
           } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Control validation failed", e);
           }
         });
   }

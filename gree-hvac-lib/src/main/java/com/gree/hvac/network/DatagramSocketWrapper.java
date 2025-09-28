@@ -25,8 +25,4 @@ public class DatagramSocketWrapper implements NetworkSocket {
   public Object getUnderlyingSocket() {
     return socket;
   }
-
-  public DatagramSocket getDatagramSocket() {
-    return socket;
-  }
 }

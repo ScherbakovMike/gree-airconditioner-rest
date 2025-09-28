@@ -329,12 +329,12 @@ class DeviceInfoTest {
     assertTrue(deviceInfo.hashCode() != 0 || deviceInfo.hashCode() == 0); // Test hashCode exists
 
     // Test that equals works with itself
-    assertTrue(deviceInfo.equals(deviceInfo));
+    assertEquals(deviceInfo, deviceInfo);
 
     // Test that equals works with null
     assertNotEquals(null, deviceInfo);
 
     // Test that equals works with different class
-    assertFalse(deviceInfo.equals("string"));
+    assertNotEquals("string", deviceInfo);
   }
 }

@@ -195,7 +195,7 @@ public class ModeFeatureValidator {
       Object value = entry.getValue();
 
       // Only validate boolean features that are being turned ON
-      if (value instanceof Boolean && (Boolean) value && !isFeatureAvailable(feature, mode)) {
+      if (value instanceof Boolean boolValue && boolValue && !isFeatureAvailable(feature, mode)) {
         Set<String> availableModes = getAvailableModesForFeature(feature);
         errors.add(
             String.format(
@@ -224,7 +224,9 @@ public class ModeFeatureValidator {
                 "Manual fan speed setting is not available in mode '%s'. Available in: %s",
                 mode, getAvailableModesForWindSetting("fanspeed")));
       }
-    } else if ("quiet".equalsIgnoreCase(feature) && value instanceof Boolean && (Boolean) value) {
+    } else if ("quiet".equalsIgnoreCase(feature)
+        && value instanceof Boolean boolValue
+        && boolValue) {
       if (!isWindSettingAvailable("quiet", mode)) {
         errors.add(
             String.format(
@@ -232,8 +234,8 @@ public class ModeFeatureValidator {
                 mode, getAvailableModesForWindSetting("quiet")));
       }
     } else if ("turbo".equalsIgnoreCase(feature)
-        && value instanceof Boolean
-        && (Boolean) value
+        && value instanceof Boolean boolValue
+        && boolValue
         && !isWindSettingAvailable("turbo", mode)) {
       errors.add(
           String.format(

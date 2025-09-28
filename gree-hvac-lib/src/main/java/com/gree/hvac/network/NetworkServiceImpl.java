@@ -14,14 +14,22 @@ public class NetworkServiceImpl implements NetworkService {
 
   @Override
   public NetworkSocket createSocket(int port) throws Exception {
-    DatagramSocket socket = new DatagramSocket(port);
-    socket.setBroadcast(true);
-    return new DatagramSocketWrapper(socket);
+    try {
+      DatagramSocket socket = new DatagramSocket(port);
+      socket.setBroadcast(true);
+      return new DatagramSocketWrapper(socket);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create socket on port " + port, e);
+    }
   }
 
   @Override
   public InetAddress resolveAddress(String hostname) throws Exception {
-    return InetAddress.getByName(hostname);
+    try {
+      return InetAddress.getByName(hostname);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to resolve hostname: " + hostname, e);
+    }
   }
 
   @Override
@@ -29,7 +37,8 @@ public class NetworkServiceImpl implements NetworkService {
       NetworkSocket socket, Consumer<byte[]> messageHandler) {
     return CompletableFuture.runAsync(
         () -> {
-          DatagramSocket datagramSocket = ((DatagramSocketWrapper) socket).getDatagramSocket();
+          DatagramSocket datagramSocket =
+              (DatagramSocket) ((DatagramSocketWrapper) socket).getUnderlyingSocket();
           byte[] buffer = new byte[1024];
           DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
@@ -51,9 +60,14 @@ public class NetworkServiceImpl implements NetworkService {
   @Override
   public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port)
       throws Exception {
-    DatagramSocket datagramSocket = ((DatagramSocketWrapper) socket).getDatagramSocket();
-    DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-    datagramSocket.send(packet);
+    try {
+      DatagramSocket datagramSocket =
+          (DatagramSocket) ((DatagramSocketWrapper) socket).getUnderlyingSocket();
+      DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+      datagramSocket.send(packet);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to send data to " + address + ":" + port, e);
+    }
   }
 
   @Override

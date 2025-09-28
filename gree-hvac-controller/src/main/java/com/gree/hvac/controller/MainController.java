@@ -335,12 +335,13 @@ public class MainController {
               DeviceStatus status = currentClient.getStatus();
               Platform.runLater(() -> updateStatusDisplay(status));
               Thread.sleep(5000);
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-              log.info("Status polling interrupted");
-              break;
             } catch (Exception e) {
-              log.error("Error polling device status", e);
+              if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+                log.info("Status polling interrupted");
+              } else {
+                log.error("Error polling device status", e);
+              }
               break;
             }
           }
