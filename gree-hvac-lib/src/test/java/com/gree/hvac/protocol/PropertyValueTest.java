@@ -299,8 +299,7 @@ class PropertyValueTest {
 
   @Test
   void testVendorValuesImmutability() {
-    Map<String, Map<String, Integer>> vendorValues =
-        new java.util.HashMap<>(PropertyValue.getVendorValues());
+    Map<String, Map<String, Integer>> vendorValues = PropertyValue.getVendorValues();
 
     // Verify that the returned map is not modifiable
     assertThrows(
