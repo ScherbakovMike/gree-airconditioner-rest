@@ -24,7 +24,7 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public InetAddress resolveAddress(String hostname) throws Exception {
+  public InetAddress resolveAddress(String hostname) {
     try {
       return InetAddress.getByName(hostname);
     } catch (Exception e) {
@@ -37,8 +37,7 @@ public class NetworkServiceImpl implements NetworkService {
       NetworkSocket socket, Consumer<byte[]> messageHandler) {
     return CompletableFuture.runAsync(
         () -> {
-          DatagramSocket datagramSocket =
-              (DatagramSocket) ((DatagramSocketWrapper) socket).getUnderlyingSocket();
+          DatagramSocket datagramSocket = (DatagramSocket) socket.getUnderlyingSocket();
           byte[] buffer = new byte[1024];
           DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
@@ -58,11 +57,9 @@ public class NetworkServiceImpl implements NetworkService {
   }
 
   @Override
-  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port)
-      throws Exception {
+  public void sendData(NetworkSocket socket, byte[] data, InetAddress address, int port) {
     try {
-      DatagramSocket datagramSocket =
-          (DatagramSocket) ((DatagramSocketWrapper) socket).getUnderlyingSocket();
+      DatagramSocket datagramSocket = (DatagramSocket) socket.getUnderlyingSocket();
       DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
       datagramSocket.send(packet);
     } catch (Exception e) {

@@ -1,6 +1,9 @@
 package com.gree.hvac.exceptions;
 
+import lombok.Getter;
+
 /** Base exception for GREE HVAC client operations */
+@Getter
 public class HvacException extends Exception {
   private final Throwable origin;
   private final Object props;
@@ -21,14 +24,6 @@ public class HvacException extends Exception {
     super(message, origin);
     this.origin = origin;
     this.props = props;
-  }
-
-  public Throwable getOrigin() {
-    return origin;
-  }
-
-  public Object getProps() {
-    return props;
   }
 }
 
@@ -84,23 +79,5 @@ class HvacConnectionTimeoutException extends HvacException {
 class HvacConnectionCancelledException extends HvacException {
   public HvacConnectionCancelledException() {
     super("Connection to HVAC device was cancelled");
-  }
-}
-
-/** Runtime exception thrown when client operations fail */
-class HvacClientException extends RuntimeException {
-  public HvacClientException(String message) {
-    super(message);
-  }
-
-  public HvacClientException(String message, Throwable cause) {
-    super(message, cause);
-  }
-}
-
-/** Runtime exception thrown when client operations are interrupted */
-class HvacClientInterruptedException extends HvacClientException {
-  public HvacClientInterruptedException(String message, InterruptedException cause) {
-    super(message, cause);
   }
 }

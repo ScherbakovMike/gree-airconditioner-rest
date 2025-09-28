@@ -19,6 +19,18 @@ public class ModeFeatureValidator {
   public static final String MODE_FAN = "fan";
   public static final String MODE_DRY = "dry";
 
+  // Feature/Wind setting constants
+  private static final String FEATURE_BLOW = "blow";
+  private static final String FEATURE_HEALTH = "health";
+  private static final String FEATURE_POWERSAVE = "powersave";
+  private static final String FEATURE_SAFETYHEATING = "safetyheating";
+  private static final String FEATURE_AIR = "air";
+
+  private static final String WIND_FANSPEED = "fanspeed";
+  private static final String WIND_AUTO = "auto";
+  private static final String WIND_QUIET = "quiet";
+  private static final String WIND_TURBO = "turbo";
+
   // Feature availability matrix based on GREE mobile app Table 1
   private static final Map<String, Set<String>> FEATURE_MODE_AVAILABILITY = new HashMap<>();
 
@@ -29,41 +41,41 @@ public class ModeFeatureValidator {
     // === FEATURE AVAILABILITY (Table 1) ===
 
     // X-Fan (Blow) - only available in Cool and Dry modes
-    FEATURE_MODE_AVAILABILITY.put("blow", Set.of(MODE_COOL, MODE_DRY));
+    FEATURE_MODE_AVAILABILITY.put(FEATURE_BLOW, Set.of(MODE_COOL, MODE_DRY));
 
     // Health (UVC/Anion) - available in all modes
     FEATURE_MODE_AVAILABILITY.put(
-        "health", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
+        FEATURE_HEALTH, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
 
     // UVC (alias for Health) - available in all modes
     FEATURE_MODE_AVAILABILITY.put(
         "uvc", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
 
     // SE (Energy Saving/PowerSave) - only available in Cool mode
-    FEATURE_MODE_AVAILABILITY.put("powersave", Set.of(MODE_COOL));
+    FEATURE_MODE_AVAILABILITY.put(FEATURE_POWERSAVE, Set.of(MODE_COOL));
     FEATURE_MODE_AVAILABILITY.put("energysaving", Set.of(MODE_COOL));
 
     // Safety Heating - typically available in all modes (device dependent)
     FEATURE_MODE_AVAILABILITY.put(
-        "safetyheating", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
+        FEATURE_SAFETYHEATING, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
 
     // Fresh Air - typically available in all modes (device dependent)
     FEATURE_MODE_AVAILABILITY.put(
-        "air", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
+        FEATURE_AIR, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY));
 
     // === WIND SETTING AVAILABILITY (Table 2) ===
 
     // Manual Fan Speed - available in all modes except Dry
-    WIND_SETTING_AVAILABILITY.put("fanspeed", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
+    WIND_SETTING_AVAILABILITY.put(WIND_FANSPEED, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
 
     // Wind Auto - available in all modes except Dry
-    WIND_SETTING_AVAILABILITY.put("auto", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
+    WIND_SETTING_AVAILABILITY.put(WIND_AUTO, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
 
     // Wind Quiet - available in all modes except Dry
-    WIND_SETTING_AVAILABILITY.put("quiet", Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
+    WIND_SETTING_AVAILABILITY.put(WIND_QUIET, Set.of(MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN));
 
     // Wind Turbo - only available in Cool and Heat modes
-    WIND_SETTING_AVAILABILITY.put("turbo", Set.of(MODE_COOL, MODE_HEAT));
+    WIND_SETTING_AVAILABILITY.put(WIND_TURBO, Set.of(MODE_COOL, MODE_HEAT));
   }
 
   /**
@@ -195,7 +207,9 @@ public class ModeFeatureValidator {
       Object value = entry.getValue();
 
       // Only validate boolean features that are being turned ON
-      if (value instanceof Boolean boolValue && boolValue && !isFeatureAvailable(feature, mode)) {
+      if (value instanceof Boolean boolValue
+          && Boolean.TRUE.equals(boolValue)
+          && !isFeatureAvailable(feature, mode)) {
         Set<String> availableModes = getAvailableModesForFeature(feature);
         errors.add(
             String.format(
@@ -216,31 +230,30 @@ public class ModeFeatureValidator {
   private static void validateWindSettingForFeature(
       String feature, Object value, String mode, List<String> errors) {
     // Check specific wind settings
-    if ("fanspeed".equalsIgnoreCase(feature) && value instanceof String) {
-      String fanSpeed = (String) value;
-      if (!"auto".equalsIgnoreCase(fanSpeed) && !isWindSettingAvailable("fanspeed", mode)) {
+    if (WIND_FANSPEED.equalsIgnoreCase(feature) && value instanceof String fanSpeed) {
+      if (!WIND_AUTO.equalsIgnoreCase(fanSpeed) && !isWindSettingAvailable(WIND_FANSPEED, mode)) {
         errors.add(
             String.format(
                 "Manual fan speed setting is not available in mode '%s'. Available in: %s",
-                mode, getAvailableModesForWindSetting("fanspeed")));
+                mode, getAvailableModesForWindSetting(WIND_FANSPEED)));
       }
-    } else if ("quiet".equalsIgnoreCase(feature)
+    } else if (WIND_QUIET.equalsIgnoreCase(feature)
         && value instanceof Boolean boolValue
-        && boolValue) {
-      if (!isWindSettingAvailable("quiet", mode)) {
+        && Boolean.TRUE.equals(boolValue)) {
+      if (!isWindSettingAvailable(WIND_QUIET, mode)) {
         errors.add(
             String.format(
                 "Quiet mode is not available in mode '%s'. Available in: %s",
-                mode, getAvailableModesForWindSetting("quiet")));
+                mode, getAvailableModesForWindSetting(WIND_QUIET)));
       }
-    } else if ("turbo".equalsIgnoreCase(feature)
+    } else if (WIND_TURBO.equalsIgnoreCase(feature)
         && value instanceof Boolean boolValue
-        && boolValue
-        && !isWindSettingAvailable("turbo", mode)) {
+        && Boolean.TRUE.equals(boolValue)
+        && !isWindSettingAvailable(WIND_TURBO, mode)) {
       errors.add(
           String.format(
               "Turbo mode is not available in mode '%s'. Available in: %s",
-              mode, getAvailableModesForWindSetting("turbo")));
+              mode, getAvailableModesForWindSetting(WIND_TURBO)));
     }
   }
 
@@ -258,7 +271,9 @@ public class ModeFeatureValidator {
     sb.append("Feature          | Auto | Cool | Heat | Fan  | Dry  |\n");
     sb.append("-----------------|------|------|------|------|------|\n");
 
-    String[] features = {"blow", "health", "powersave", "safetyheating", "air"};
+    String[] features = {
+      FEATURE_BLOW, FEATURE_HEALTH, FEATURE_POWERSAVE, FEATURE_SAFETYHEATING, FEATURE_AIR
+    };
     String[] modes = {MODE_AUTO, MODE_COOL, MODE_HEAT, MODE_FAN, MODE_DRY};
 
     for (String feature : features) {
@@ -275,7 +290,7 @@ public class ModeFeatureValidator {
     sb.append("Wind Setting     | Auto | Cool | Heat | Fan  | Dry  |\n");
     sb.append("-----------------|------|------|------|------|------|\n");
 
-    String[] windSettings = {"fanspeed", "auto", "quiet", "turbo"};
+    String[] windSettings = {WIND_FANSPEED, WIND_AUTO, WIND_QUIET, WIND_TURBO};
 
     for (String windSetting : windSettings) {
       sb.append(String.format("%-16s |", windSetting));

@@ -146,7 +146,7 @@ class DeviceInfoTest {
     deviceInfo.setId("device123");
     String differentObject = "device123";
 
-    assertNotEquals(deviceInfo, differentObject);
+    assertNotEquals(differentObject, deviceInfo);
   }
 
   @Test
@@ -328,13 +328,7 @@ class DeviceInfoTest {
     assertNotNull(deviceInfo.toString());
     assertTrue(deviceInfo.hashCode() != 0 || deviceInfo.hashCode() == 0); // Test hashCode exists
 
-    // Test that equals works with itself
-    assertEquals(deviceInfo, deviceInfo);
-
     // Test that equals works with null
     assertNotEquals(null, deviceInfo);
-
-    // Test that equals works with different class
-    assertNotEquals("string", deviceInfo);
   }
 }

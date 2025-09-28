@@ -13,14 +13,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 
 /** Main controller for the GREE HVAC Controller application */
 @Slf4j
 public class MainController {
-
-  @FXML private VBox mainContainer;
 
   @FXML private Button discoverButton;
 
@@ -37,8 +34,6 @@ public class MainController {
   @FXML private TableColumn<DeviceInfo, String> modelColumn;
 
   @FXML private TableColumn<DeviceInfo, String> statusColumn;
-
-  @FXML private VBox controlPanel;
 
   @FXML private Label deviceInfoLabel;
 
@@ -109,9 +104,8 @@ public class MainController {
     temperatureSlider
         .valueProperty()
         .addListener(
-            (observable, oldValue, newValue) -> {
-              temperatureLabel.setText(String.format("%.0f°C", newValue.doubleValue()));
-            });
+            (observable, oldValue, newValue) ->
+                temperatureLabel.setText(String.format("%.0f°C", newValue.doubleValue())));
     temperatureLabel.setText("24°C");
 
     // Power toggle setup
@@ -157,23 +151,22 @@ public class MainController {
 
     discoveryFuture
         .thenAccept(
-            devices -> {
-              Platform.runLater(
-                  () -> {
-                    discoveredDevices.clear();
-                    discoveredDevices.addAll(devices);
-                    setDiscoveryProgress(false);
-                    discoverButton.setDisable(false);
+            devices ->
+                Platform.runLater(
+                    () -> {
+                      discoveredDevices.clear();
+                      discoveredDevices.addAll(devices);
+                      setDiscoveryProgress(false);
+                      discoverButton.setDisable(false);
 
-                    if (devices.isEmpty()) {
-                      showAlert(
-                          "No devices found",
-                          "No GREE HVAC devices were discovered on the network.");
-                    } else {
-                      log.info("Discovered {} devices", devices.size());
-                    }
-                  });
-            })
+                      if (devices.isEmpty()) {
+                        showAlert(
+                            "No devices found",
+                            "No GREE HVAC devices were discovered on the network.");
+                      } else {
+                        log.info("Discovered {} devices", devices.size());
+                      }
+                    }))
         .exceptionally(
             throwable -> {
               Platform.runLater(
@@ -204,20 +197,19 @@ public class MainController {
       CompletableFuture<Void> connectFuture = currentClient.connect();
       connectFuture
           .thenRun(
-              () -> {
-                Platform.runLater(
-                    () -> {
-                      setConnectionProgress(false);
-                      connectButton.setDisable(false);
-                      setControlPanelEnabled(true);
-                      setConnectionStatus("Connected to " + selectedDevice.getName());
+              () ->
+                  Platform.runLater(
+                      () -> {
+                        setConnectionProgress(false);
+                        connectButton.setDisable(false);
+                        setControlPanelEnabled(true);
+                        setConnectionStatus("Connected to " + selectedDevice.getName());
 
-                      // Start status polling
-                      startStatusPolling();
+                        // Start status polling
+                        startStatusPolling();
 
-                      log.info("Successfully connected to device: {}", selectedDevice.getName());
-                    });
-              })
+                        log.info("Successfully connected to device: {}", selectedDevice.getName());
+                      }))
           .exceptionally(
               throwable -> {
                 Platform.runLater(
@@ -357,7 +349,7 @@ public class MainController {
 
       // Update temperature display
       if (status.getCurrentTemperature() != null) {
-        currentTempLabel.setText(String.format("%.1f°C", status.getCurrentTemperature()));
+        currentTempLabel.setText(String.format("%d°C", status.getCurrentTemperature()));
       }
 
       // Update temperature slider

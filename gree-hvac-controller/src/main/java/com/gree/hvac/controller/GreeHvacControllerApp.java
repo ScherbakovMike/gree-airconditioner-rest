@@ -94,7 +94,7 @@ public class GreeHvacControllerApp extends Application {
     return root;
   }
 
-  private java.util.List<com.gree.hvac.dto.DeviceInfo> discoveredDevices =
+  private final java.util.List<com.gree.hvac.dto.DeviceInfo> discoveredDevices =
       new java.util.ArrayList<>();
   private com.gree.hvac.dto.DeviceInfo selectedDevice = null;
   private com.gree.hvac.client.HvacClient currentClient = null;
@@ -441,28 +441,27 @@ public class GreeHvacControllerApp extends Application {
   private void performDiscovery() {
     com.gree.hvac.GreeHvac.discoverDevices()
         .thenAccept(
-            devices -> {
-              Platform.runLater(
-                  () -> {
-                    boolean devicesChanged = !devices.equals(discoveredDevices);
-                    discoveredDevices.clear();
-                    discoveredDevices.addAll(devices);
-                    updateDeviceComboBox();
+            devices ->
+                Platform.runLater(
+                    () -> {
+                      boolean devicesChanged = !devices.equals(discoveredDevices);
+                      discoveredDevices.clear();
+                      discoveredDevices.addAll(devices);
+                      updateDeviceComboBox();
 
-                    if (devicesChanged) {
-                      if (devices.isEmpty()) {
-                        connectionStatusLabel.setText("No devices found on network");
-                        connectionStatusLabel.setStyle(
-                            "-fx-text-fill: #FF9800; -fx-font-style: italic;");
-                      } else {
-                        connectionStatusLabel.setText(
-                            "Found " + devices.size() + " device(s). Select one to connect.");
-                        connectionStatusLabel.setStyle(
-                            "-fx-text-fill: #4CAF50; -fx-font-style: italic;");
+                      if (devicesChanged) {
+                        if (devices.isEmpty()) {
+                          connectionStatusLabel.setText("No devices found on network");
+                          connectionStatusLabel.setStyle(
+                              "-fx-text-fill: #FF9800; -fx-font-style: italic;");
+                        } else {
+                          connectionStatusLabel.setText(
+                              "Found " + devices.size() + " device(s). Select one to connect.");
+                          connectionStatusLabel.setStyle(
+                              "-fx-text-fill: #4CAF50; -fx-font-style: italic;");
+                        }
                       }
-                    }
-                  });
-            })
+                    }))
         .exceptionally(
             throwable -> {
               Platform.runLater(
@@ -511,32 +510,31 @@ public class GreeHvacControllerApp extends Application {
       currentClient
           .connect()
           .thenRun(
-              () -> {
-                Platform.runLater(
-                    () -> {
-                      connectButton.setText("Disconnect");
-                      connectButton.setStyle(
-                          "-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;");
-                      connectButton.setOnAction(e -> disconnectFromDevice());
-                      connectButton.setDisable(false);
+              () ->
+                  Platform.runLater(
+                      () -> {
+                        connectButton.setText("Disconnect");
+                        connectButton.setStyle(
+                            "-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 16px;");
+                        connectButton.setOnAction(e -> disconnectFromDevice());
+                        connectButton.setDisable(false);
 
-                      connectionStatusLabel.setText("Connected to " + selectedDevice.getName());
-                      connectionStatusLabel.setStyle(
-                          "-fx-text-fill: #4CAF50; -fx-font-style: italic;");
-                      setControlPanelEnabled(true);
+                        connectionStatusLabel.setText("Connected to " + selectedDevice.getName());
+                        connectionStatusLabel.setStyle(
+                            "-fx-text-fill: #4CAF50; -fx-font-style: italic;");
+                        setControlPanelEnabled(true);
 
-                      // Start status polling
-                      startStatusPolling();
-                      updateDeviceStatus();
+                        // Start status polling
+                        startStatusPolling();
+                        updateDeviceStatus();
 
-                      // Check if this was a device switch
-                      String statusMessage =
-                          connectionStatusLabel.getText().contains("Switching")
-                              ? "Successfully switched to " + selectedDevice.getName()
-                              : "Successfully connected to " + selectedDevice.getName();
-                      showInlineStatus(statusMessage, false);
-                    });
-              })
+                        // Check if this was a device switch
+                        String statusMessage =
+                            connectionStatusLabel.getText().contains("Switching")
+                                ? "Successfully switched to " + selectedDevice.getName()
+                                : "Successfully connected to " + selectedDevice.getName();
+                        showInlineStatus(statusMessage, false);
+                      }))
           .exceptionally(
               throwable -> {
                 Platform.runLater(
@@ -709,10 +707,7 @@ public class GreeHvacControllerApp extends Application {
   }
 
   private void updateTemperatureDisplay() {
-    Platform.runLater(
-        () -> {
-          temperatureLabel.setText(currentTemperature + "°C");
-        });
+    Platform.runLater(() -> temperatureLabel.setText(currentTemperature + "°C"));
   }
 
   private void sendTemperatureCommand() {
@@ -721,12 +716,11 @@ public class GreeHvacControllerApp extends Application {
     currentClient
         .control(control)
         .thenRun(
-            () -> {
-              // Wait a moment then update status
-              java.util.concurrent.CompletableFuture.delayedExecutor(
-                      1, java.util.concurrent.TimeUnit.SECONDS)
-                  .execute(this::updateDeviceStatus);
-            });
+            () ->
+                // Wait a moment then update status
+                java.util.concurrent.CompletableFuture.delayedExecutor(
+                        1, java.util.concurrent.TimeUnit.SECONDS)
+                    .execute(this::updateDeviceStatus));
   }
 
   private void updateDeviceMode() {
@@ -738,12 +732,11 @@ public class GreeHvacControllerApp extends Application {
     currentClient
         .control(control)
         .thenRun(
-            () -> {
-              // Wait a moment then update status
-              java.util.concurrent.CompletableFuture.delayedExecutor(
-                      1, java.util.concurrent.TimeUnit.SECONDS)
-                  .execute(this::updateDeviceStatus);
-            });
+            () ->
+                // Wait a moment then update status
+                java.util.concurrent.CompletableFuture.delayedExecutor(
+                        1, java.util.concurrent.TimeUnit.SECONDS)
+                    .execute(this::updateDeviceStatus));
   }
 
   private void updateDeviceFanSpeed() {
@@ -755,12 +748,11 @@ public class GreeHvacControllerApp extends Application {
     currentClient
         .control(control)
         .thenRun(
-            () -> {
-              // Wait a moment then update status
-              java.util.concurrent.CompletableFuture.delayedExecutor(
-                      1, java.util.concurrent.TimeUnit.SECONDS)
-                  .execute(this::updateDeviceStatus);
-            });
+            () ->
+                // Wait a moment then update status
+                java.util.concurrent.CompletableFuture.delayedExecutor(
+                        1, java.util.concurrent.TimeUnit.SECONDS)
+                    .execute(this::updateDeviceStatus));
   }
 
   @Override
@@ -791,9 +783,5 @@ public class GreeHvacControllerApp extends Application {
     if (systemTray != null && trayIcon != null) {
       systemTray.remove(trayIcon);
     }
-  }
-
-  public static void main(String[] args) {
-    launch(args);
   }
 }

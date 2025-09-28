@@ -164,6 +164,7 @@ class HvacClientTest {
 
     assertTrue(
         exception.getCause() instanceof HvacException
+            || exception.getCause() instanceof HvacClient.HvacClientOperationException
             || (exception.getCause() != null
                 && exception.getCause().getMessage() != null
                 && exception.getCause().getMessage().contains("not connected"))
