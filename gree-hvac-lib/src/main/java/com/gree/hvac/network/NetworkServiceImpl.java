@@ -19,7 +19,7 @@ public class NetworkServiceImpl implements NetworkService {
       socket.setBroadcast(true);
       return new DatagramSocketWrapper(socket);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create socket on port " + port, e);
+      throw new NetworkSocketException("Failed to create socket on port " + port, e);
     }
   }
 
@@ -28,7 +28,7 @@ public class NetworkServiceImpl implements NetworkService {
     try {
       return InetAddress.getByName(hostname);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to resolve hostname: " + hostname, e);
+      throw new NetworkAddressException("Failed to resolve hostname: " + hostname, e);
     }
   }
 
@@ -50,7 +50,7 @@ public class NetworkServiceImpl implements NetworkService {
             } catch (Exception e) {
               if (!socket.isClosed()) {
                 log.error("Error receiving data", e);
-                throw new RuntimeException(e);
+                throw new NetworkSocketException(e.getMessage(), e);
               }
             }
           }
@@ -66,7 +66,7 @@ public class NetworkServiceImpl implements NetworkService {
       DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
       datagramSocket.send(packet);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to send data to " + address + ":" + port, e);
+      throw new NetworkTransmissionException("Failed to send data to " + address + ":" + port, e);
     }
   }
 

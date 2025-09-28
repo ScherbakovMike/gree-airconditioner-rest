@@ -11,22 +11,22 @@ public class NetworkException extends Exception {
   }
 }
 
-/** Exception thrown when socket creation fails */
-class NetworkSocketException extends NetworkException {
+/** Runtime exception thrown when socket creation fails */
+class NetworkSocketException extends RuntimeException {
   public NetworkSocketException(String message, Throwable cause) {
     super(message, cause);
   }
 }
 
-/** Exception thrown when address resolution fails */
-class NetworkAddressException extends NetworkException {
+/** Runtime exception thrown when address resolution fails */
+class NetworkAddressException extends RuntimeException {
   public NetworkAddressException(String message, Throwable cause) {
     super(message, cause);
   }
 }
 
-/** Exception thrown when data transmission fails */
-class NetworkTransmissionException extends NetworkException {
+/** Runtime exception thrown when data transmission fails */
+class NetworkTransmissionException extends RuntimeException {
   public NetworkTransmissionException(String message, Throwable cause) {
     super(message, cause);
   }
