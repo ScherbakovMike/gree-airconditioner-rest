@@ -105,15 +105,16 @@ ValidationResult validate(String mode, Map<String, Object> features) {
 }
 ```
 
-#### Feature Availability Matrix (Discovered from GREE Mobile App)
+#### Feature Availability Matrix (Based on ModeFeatureValidator Implementation)
 
 **Table 1: Features by Mode**
 | Feature      | Auto | Cool | Heat | Fan | Dry |
 |-------------|------|------|------|-----|-----|
 | X-Fan (blow) | ✗    | ✓    | ✗    | ✗   | ✓   |
 | Health (UVC) | ✓    | ✓    | ✓    | ✓   | ✓   |
-| Energy Save  | ✗    | ✓    | ✗    | ✗   | ✗   |
+| PowerSave (SE) | ✗    | ✓    | ✗    | ✗   | ✗   |
 | Safety Heat  | ✓    | ✓    | ✓    | ✓   | ✓   |
+| Air (Fresh)  | ✓    | ✓    | ✓    | ✓   | ✓   |
 
 **Table 2: Wind Settings by Mode**
 | Wind Setting | Auto | Cool | Heat | Fan | Dry |
@@ -191,12 +192,13 @@ The library maps human-readable property names to GREE vendor codes:
 | Human Property | Vendor Code | Value Type | Example Values |
 |---------------|-------------|------------|----------------|
 | power | Pow | Integer | 0=off, 1=on |
-| mode | Mod | Integer | 0=auto, 1=cool, 2=dry, 3=fan_only, 4=heat |
-| temperature | SetTem | Integer | 16-30 (Celsius) |
+| mode | Mod | Integer | 0=auto, 1=cool, 2=dry, 3=fan_only, 4=heat (Note: ModeFeatureValidator uses "fan" for mode 3) |
+| temperatureUnit | TemUn | Integer | 0=celsius, 1=fahrenheit |
+| temperature | SetTem | Integer | 16-30 (Celsius), mapped to 0-14 |
 | currentTemperature | TemSen | Integer | Read-only, offset -40 |
 | fanSpeed | WdSpd | Integer | 0=auto, 1=low, 2=mediumLow, 3=medium, 4=mediumHigh, 5=high |
-| swingHorizontal | SwingLfRig | Integer | 0=default, 1=full, 2-6=fixed positions, 7=fullAlt |
-| swingVertical | SwUpDn | Integer | 0=default, 1=full, 2-6=fixed, 7-11=swing positions |
+| swingHor | SwingLfRig | Integer | 0=default, 1=full, 2=fixedLeft, 3=fixedMidLeft, 4=fixedMid, 5=fixedMidRight, 6=fixedRight, 7=fullAlt |
+| swingVert | SwUpDn | Integer | 0=default, 1=full, 2=fixedTop, 3=fixedMidTop, 4=fixedMid, 5=fixedMidBottom, 6=fixedBottom, 7=swingBottom, 8=swingMidBottom, 9=swingMid, 10=swingMidTop, 11=swingTop |
 | turbo | Tur | Integer | 0=off, 1=on |
 | quiet | Quiet | Integer | 0=off, 1=mode1, 2=mode2, 3=mode3 |
 | health | Health | Integer | 0=off, 1=on (UVC sterilization) |
@@ -454,6 +456,13 @@ when(socketService.createSocket())
 6. **Mode-Dependent Features**: Strict validation based on GREE mobile app feature matrix
 7. **Wind Control Restrictions**: Dry mode completely disables all wind controls (fanspeed, turbo, quiet)
 8. **Status Synchronization**: Device status updates may lag behind control commands by 1-3 seconds
+
+#### Known Codebase Inconsistencies
+⚠️ **Critical**: The library has an internal inconsistency for fan mode representation:
+- PropertyValue.java uses `"fan_only"` (string constant)
+- ModeFeatureValidator.java uses `"fan"` (validation logic)
+- Both refer to mode value `3`
+- **Impact**: Developers must be aware of this when implementing validation vs data models
 
 #### Protocol Constraints
 1. **Mode Restrictions**:
